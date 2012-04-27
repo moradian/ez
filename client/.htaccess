@@ -1,0 +1,10 @@
+RewriteEngine On
+
+RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-d
+RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_URI} !(/images/)
+RewriteCond %{REQUEST_URI} !(/fonts/)
+RewriteCond %{REQUEST_URI} !(/scripts/)
+RewriteCond %{REQUEST_URI} !(/styles/)
+RewriteCond %{REQUEST_URI} !(robots.txt)
+RewriteRule \w* incoming.request.handler.php [L,QSA]

@@ -1,0 +1,8 @@
+User-agent: *
+Disallow: /cacp/
+Disallow: /random/
+Disallow: /random
+Disallow: /404.htm
+Disallow: *.gif
+Disallow: *.jpg
+Disallow: *.png
