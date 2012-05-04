@@ -56,7 +56,7 @@ class AbstractForm
 	
 	/**
 	 * Decorator to be used to render the form
-	 * @var string
+	 * @var \Ez\Form\Decorator\AbstractDecorator
 	 */
 	protected $decorator;
 	
@@ -101,6 +101,17 @@ class AbstractForm
 	{
 		$this->elements = $elements;
 		return $this;
+	}
+	
+	/**
+	 * Returns the elements of the form
+	 * 
+	 * @author	Mehdi Bakhtiari
+	 * @return	\Ez\Form\Element\Collection
+	 */
+	public function getElements()
+	{
+		return $this->elements;
 	}
 	
 	/**
@@ -195,12 +206,16 @@ class AbstractForm
 	}
 	
 	/**
-	 * Enter description here ...
-	 * @param unknown_type $decorator
+	 * Sets the decorator to render the form with
+	 * 
+	 * @author	Mehdi Bakhtiari
+	 * @param 	\Ez\Form\Decorator\AbstractDecorator $decorator
+	 * @return	\Ez\Form\AbstractForm
 	 */
-	public function setDecorator( $decorator )
+	public function setDecorator( Decorator\AbstractDecorator $decorator )
 	{
 		$this->decorator = $decorator;
+		return $this;
 	}
 	
 	/**
@@ -260,13 +275,20 @@ class AbstractForm
 	 */
 	public function __toString()
 	{
-		$output = "<form action=\"{$this->action}\" method=\"{$this->method}\">";
-		
-		foreach( $this->elements->getAll() as $element )
+		if( !empty( $this->decorator ) )
 		{
-			$output .= $element;
+			return $this->decorator->render( $this );
 		}
-		
-		return $output .= "</form>";
+		else
+		{
+			$output = "<form action=\"{$this->action}\" method=\"{$this->method}\">";
+			
+			foreach( $this->elements->getAll() as $element )
+			{
+				$output .=	$element;
+			}
+			
+			return $output . "</form>";
+		}
 	}
 }

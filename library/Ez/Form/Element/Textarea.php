@@ -22,7 +22,7 @@
 
 namespace Ez\Form\Element;
 
-class Text extends AbstractElement
+class Textarea extends AbstractElement
 {
 	public function __construct()
 	{

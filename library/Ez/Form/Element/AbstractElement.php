@@ -66,6 +66,11 @@ abstract class AbstractElement
 	protected $validators;
 	
 	/**
+	 * @var \Ez\Form\Decorator\AbstractDecorator
+	 */
+	protected $decorator;
+	
+	/**
 	 * Enforcing all elements to declare their own toString()
 	 * method to handle generating HTML output of the form.
 	 */
@@ -214,5 +219,29 @@ abstract class AbstractElement
 	public function getValidators()
 	{
 		return $this->validators;
+	}
+	
+	/**
+	 * Sets the decorator to render the element with
+	 * 
+	 * @author	Mehdi Bakhtiari
+	 * @param	\Ez\Form\Decorator\AbstractDecorator $decorator
+	 * @return	\Ez\Form\Element\AbstractElement
+	 */
+	public function setDecorator( \Ez\Form\Decorator\AbstractDecorator $decorator )
+	{
+		$this->decorator = $decorator;
+		return $this;
+	}
+	
+	/**
+	 * Returns the decorator of the element
+	 * 
+	 * @author	Mehdi Bakhtiari
+	 * @return	\Ez\Form\Decorator\AbstractDecorator
+	 */
+	public function getDecorator()
+	{
+		return $this->decorator;
 	}
 }
