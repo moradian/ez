@@ -30,6 +30,11 @@ class Registry
 	private static $doctrineEntityManager;
 	
 	/**
+	 * @var array
+	 */
+	private static $translation;
+	
+	/**
 	 * @author	Mehdi Bakhtiari
 	 * @param	\Doctrine\ORM\EntityManager $entityManager
 	 * @return	void
@@ -46,5 +51,24 @@ class Registry
 	public static function getDoctrineEntityManager()
 	{
 		return self::$doctrineEntityManager;
+	}
+	
+	/**
+	 * @author	Mehdi Bakhtiari
+	 * @param	array $translation
+	 * return	void
+	 */
+	public static function setTranslation( array $translation )
+	{
+		self::$translation = $translation;
+	}
+	
+	/**
+	 * @author	Mehdi Bakhtiari
+	 * @return	array
+	 */
+	public static function getTranslation()
+	{
+		return self::$translation;
 	}
 } 
