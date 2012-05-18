@@ -87,7 +87,7 @@ class OneColumn extends AbstractDecorator
 			$output .=	sprintf( $this->getElementLabelPairWrapper(), $elementMarkup );
 		}
 		
-		$output = sprintf( $this->getFormWrapper(), $output );
+		$output = sprintf( $this->getFormWrapper(), $form->getName(), $output );
 		
 		return	"<form name=\"{$form->getName()}\" action=\"{$form->getAction()}\" method=\"{$form->getMethod()}\">"
 		.		sprintf( $this->getFormWrapper(), $form->getName(), $output ) . "</form>";
