@@ -61,8 +61,6 @@ class Authenticate extends AbstractPlugin
 	
 	public function preDispatch( \Ez\Request $request )
 	{
-		echo "Running pre-dispatch of authentication plugin!";
-		
 		if( isset( $_SESSION[ self::$sessionName ] ) )
 		{
 			if( is_numeric( $_SESSION[ self::$sessionName ] ) )
@@ -77,7 +75,7 @@ class Authenticate extends AbstractPlugin
 	
 	public function postDispatch( \Ez\Request $request )
 	{
-		echo "Running post-dispatch of authentication plugin!";
+		
 	}
 	
 	public function getUserRole()
