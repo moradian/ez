@@ -40,8 +40,12 @@ class Request
 	private $queryString;
 	
 	private static $instance;
-	
-	public static function getInstance()
+
+    /**
+     * @static
+     * @return \Ez\Request
+     */
+    public static function getInstance()
 	{
 		if( !( self::$instance instanceof self ) )
 		{
@@ -195,7 +199,7 @@ class Request
 																	$this->controllerFileName
 													)
 		) . "Controller";
-		
+
 		return $this;
 	}
 	
@@ -214,11 +218,11 @@ class Request
 			$item = ucwords( $item );
 		}
 		
-		$this->controllerFileName = "/" . implode( "/", $this->controllerFileName ) . ".php";
+		$this->controllerFileName = implode( "/", $this->controllerFileName ) . ".php";
 		
-		if( $this->controllerFileName === "/.php" )
+		if( $this->controllerFileName === ".php" )
 		{
-			$this->controllerFileName = "/Home/Index.php";
+			$this->controllerFileName = "Home/Index.php";
 		}
 		
 		return $this;

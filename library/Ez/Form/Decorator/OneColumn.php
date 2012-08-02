@@ -28,12 +28,22 @@ class OneColumn extends AbstractDecorator
 	 * @var \Ez\Form\Decorator\OneColumn
 	 */
 	private static $instance = null;
+
+    /**
+     * @var int
+     */
+    private $cellSpacing = 2;
+
+    /**
+     * @var string
+     */
+    private $labelsColor = "#000000";
 	
 	private function __construct()
 	{
 		$this
 			->setFormWrapper(
-				"<table id=\"%sForm\">
+				"<table id=\"%sForm\" cellspacing=\"%s\">
 					<tr>
 						<td></td>
 						<td></td>
@@ -42,7 +52,7 @@ class OneColumn extends AbstractDecorator
 				</table>"
 			)
 			->setElementWrapper( "<td>%s</td>" )
-			->setLabelWrapper( "<td>%s</td>" )
+			->setLabelWrapper( "<td style=\"color: %s\" align=\"right\">%s</td>" )
 			->setElementLabelPairWrapper( "<tr>%s</tr>" );
 	}
 	
@@ -59,7 +69,43 @@ class OneColumn extends AbstractDecorator
 		
 		return self::$instance;
 	}
-	
+
+    /**
+     * @param $cellSpacing
+     * @return Ez\Form\Decorator\OneColumn
+     */
+    public function setCellSpacing($cellSpacing)
+    {
+        $this->cellSpacing = $cellSpacing;
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getCellSpacing()
+    {
+        return $this->cellSpacing;
+    }
+
+    /**
+     * @param $labelsColor
+     * @return OneColumn
+     */
+    public function setLabelsColor($labelsColor)
+    {
+        $this->labelsColor = $labelsColor;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLabelsColor()
+    {
+        return $this->labelsColor;
+    }
+
 	/**
 	 * (non-PHPdoc)
 	 * @see		Ez\Form\Decorator\AbstractDecorator::render()
@@ -71,7 +117,7 @@ class OneColumn extends AbstractDecorator
 		
 		foreach( $form->getElements()->getAll() as $element )
 		{
-			$elementMarkup 		= sprintf( $this->getLabelWrapper(), $element->getLabel() );
+			$elementMarkup 		= sprintf( $this->getLabelWrapper(), $this->labelsColor, $element->getLabel() );
 			$elementDecorator	= $element->getDecorator();
 			
 			
@@ -87,9 +133,9 @@ class OneColumn extends AbstractDecorator
 			$output .=	sprintf( $this->getElementLabelPairWrapper(), $elementMarkup );
 		}
 		
-		$output = sprintf( $this->getFormWrapper(), $form->getName(), $output );
-		
+		$output = sprintf( $this->getFormWrapper(), $form->getName(), $this->cellSpacing, $output );
+
 		return	"<form name=\"{$form->getName()}\" action=\"{$form->getAction()}\" method=\"{$form->getMethod()}\">"
-		.		sprintf( $this->getFormWrapper(), $form->getName(), $output ) . "</form>";
+		.		sprintf( $this->getFormWrapper(), $form->getName(), $this->cellSpacing, $output ) . "</form>";
 	}
 }

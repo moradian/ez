@@ -33,6 +33,19 @@ class Option
 	 * @var string
 	 */
 	private $text;
+
+    public function __construct( $value = null, $text = null )
+    {
+        if( is_string( $value ) )
+        {
+            $this->setValue( $value );
+        }
+
+        if( is_string( $text ) )
+        {
+            $this->setText( $text );
+        }
+    }
 	
 	/**
 	 * Sets the value of the option

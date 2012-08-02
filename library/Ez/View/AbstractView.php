@@ -23,24 +23,26 @@ namespace Ez\View;
 
 abstract class AbstractView
 {
-	protected	$contentFile,
+    protected $templateFile;
+
+	protected   $contentFile,
 				$encoding,
 				$title,
 				$request,
-			
+
 				$metaKeywords,
 				$metaDescription;
-	
+
 	// THIS ARRAY PROPERTY IS USED TO SET VALUES
 	// TO THE VIEW OBJ TO BE USED AND DISPLAYED
 	protected	$data				= array();
 	public		$JSLibsToInclude	= array();
-	
+
 	static function determineView( $code )
 	{
 		// THIS METHOD RETURNS THE VIEW CLASS FILE NAME WITHOUT
 		// THE THE EXTENSION ".php"
-		
+
 		$archive =	array(	"chidari"			=> "what.is.chidari",
 							"faq"				=> "faq",
 							"about"				=> "about.us",
@@ -52,42 +54,42 @@ abstract class AbstractView
 							"manual-ads"		=> "manual.ads",
 							"manual-chidari"	=> "manual.chidari"
 		);
-		
+
 		return	array_key_exists( $code, $archive )
 				? $archive[ $code ]
 				: null;
 	}
-	
+
 	static function determineTemplate( $code )
 	{
 		// THIS METHOD RETURNS THE TEMPLATE FILE NAME WITHOUT
 		// THE THE EXTENSION ".php"
-		
+
 		$archive =	array(	"mehdi"	=> "home" );
-		
+
 		return	array_key_exists( $code, $archive )
 				?
 				$archive[ $code ]
 				:
 				null;
 	}
-	
+
 	public function setTemplateFile( $file )
 	{
 		$templateFile = PATH_TO_TEMPLATES . $file . ".php";
-		
+
 		if( file_exists( $templateFile ) )
 		{
 			$this->templateFile = $templateFile;
 		}
-		
+
 		return $this;
 	}
-	
+
 	/**
 	 * Passes the request object to the view in case it is
 	 * going to be accessed within the view
-	 * 
+	 *
 	 * @author	Mehdi Bakhtiari
 	 * @param	\Ez\Request $request
 	 * @return	\Ez\View\AbstractView
@@ -97,24 +99,24 @@ abstract class AbstractView
 		$this->request = $request;
 		return $this;
 	}
-	
+
 	public function __set( $key, $value )
 	{
 		$this->data[ $key ] = $value;
 	}
-	
+
 	public function __get( $key )
 	{
 		if( $key === "request" )
 		{
 			return $this->request;
 		}
-		
+
 		return	array_key_exists( $key, $this->data )
 				? $this->data[ $key ]
 				: "";
 	}
-	
+
 	public function display()
 	{
 		// THE CONTENT FILE IS INCLUDED FROM INSIDE
@@ -123,14 +125,15 @@ abstract class AbstractView
 		{
 			return false;
 		}
-		
+
 		// INCLUDE THE TEMPLATE FILE
-		include_once $this->templateFile;
+
+        include_once $this->templateFile;
 	}
-	
+
 	/**
 	 * Sets the content file of the view
-	 * 
+	 *
 	 * @author	Mehdi Bakhtiari
 	 * @param	string $file Filename without the .php extension
 	 * @return	\Ez\View\AbstractView
@@ -141,13 +144,13 @@ abstract class AbstractView
 		{
 			$this->contentFile = $file . ".php";
 		}
-		
+
 		return $this;
 	}
-	
+
 	/**
 	 * Returns the name of the content file fo the view
-	 * 
+	 *
 	 * @author	Mehdi Bakhtiari
 	 * @return	string
 	 */
@@ -155,10 +158,10 @@ abstract class AbstractView
 	{
 		return $this->contentFile;
 	}
-	
+
 	/**
 	 * Sets the encoding of the view
-	 * 
+	 *
 	 * @author	Mehdi Bakhtiari
 	 * @param	string $encoding
 	 * @return	\Ez\View\AbstractView
@@ -168,10 +171,10 @@ abstract class AbstractView
 		$this->encoding = $encoding;
 		return $this;
 	}
-	
+
 	/**
 	 * Returns the content encoding of the view
-	 * 
+	 *
 	 * @author	Mehdi Bakhtiari
 	 * @return	string
 	 */
@@ -179,10 +182,10 @@ abstract class AbstractView
 	{
 		return $this->encoding;
 	}
-	
+
 	/**
 	 * Sets the title of the view
-	 * 
+	 *
 	 * @author	Mehdi Bakhtiari
 	 * @param	string $title
 	 * @return	\Ez\View\AbstractView
@@ -192,10 +195,10 @@ abstract class AbstractView
 		$this->title = $title;
 		return $this;
 	}
-	
+
 	/**
 	 * Returns the title of the view
-	 * 
+	 *
 	 * @author	Mehdi Bakhtiari
 	 * @return	string
 	 */

@@ -20,30 +20,8 @@
  * FOR MORE INFORMATION PLEASE REFER TO <http://www.ez-project.org>
  */
 
-namespace Ez;
+namespace Ez\Acl;
 
-class Acl implements Acl\IAcl
+interface IUser
 {
-	/**
-	 * @var \Ez\Acl
-	 */
-	private static $instance = null;
-	
-	private function __construct()
-	{}
-	
-	public static function getInstance()
-	{
-		if( is_null( self::$instance ) )
-		{
-			self::$instance = new Acl;
-		}
-		
-		return self::$instance;
-	}
-	
-	public function isAllowed( Request $request, Acl\User $user )
-	{
-		
-	}
 }

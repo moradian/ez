@@ -32,15 +32,24 @@ class Authenticate extends AbstractPlugin
 	private static $sessionName = "EZUser";
 	
 	/**
+	 * This variable holds the name of the session which holds the user session
+	 * of the last request. This is done to check and prevent session hijacking
+	 * and poisoning.
+	 * 
+	 * @var string
+	 */
+	private static $lastRequestSessionName = "lastRequestEZUser";
+	
+	/**
 	 * Name of the class used for authentication
 	 * @var string
 	 */
 	private static $userModel = "\Model\Client";
 	
 	/**
-	 * @var boolean
+	 * @var \Ez\Acl\User
 	 */
-	private static $isValid = false;
+	private static $identity;
 	
 	/**
 	 * @var \Model\Client
@@ -65,23 +74,47 @@ class Authenticate extends AbstractPlugin
 		{
 			if( is_numeric( $_SESSION[ self::$sessionName ] ) )
 			{
+				if( $_SESSION[ self::$sessionName ] !== $_SESSION[ self::$lastRequestSessionName ] )
+				{
+					unset( $_SESSION[ self::$sessionName ] );
+					unset( $_SESSION[ self::$lastRequestSessionName ] );
+					
+					self::$identity = null;
+					return;
+				}
+				
 				 $user = 
 				 	\Ez\Registry::getDoctrineEntityManager()
 				 		->getRepository( self::$userModel )
 				 		->findOneBy( array( "id", $_SESSION[ self::$sessionName ] ) );
+				
+				if( !empty( $user ) )
+				{
+					self::$identity = $user;
+					return;
+				}
 			}
 		}
 	}
 	
 	public function postDispatch( \Ez\Request $request )
 	{
+		if( $this->hasIdentity() )
+		{
+			$_SESSION[ self::$lastRequestSessionName ] = self::$identity->id;
+			return;
+		}
 		
+		$_SESSION[ self::$lastRequestSessionName ] = null;
 	}
 	
-	public function getUserRole()
+	public function hasIdentity()
 	{
-		return array(	"id"	=> self::$user->role->id,
-						"name"	=> self::$user->role->name
-		);
+		return ( self::$identity instanceof \Ez\Acl\User );
+	}
+	
+	public function getIdentity()
+	{
+		return self::$identity;
 	}
 }

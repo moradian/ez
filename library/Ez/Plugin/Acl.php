@@ -25,9 +25,12 @@ class Acl extends AbstractPlugin
 {
 	private static $instance = null;
 	
-	private function __construct()
-	{
-	}
+	/**
+	 * @var \Ez\Acl\IAcl
+	 */
+	private static $aclImplementation = null;
+	
+	private function __construct() {}
 	
 	public static function getInstance()
 	{
@@ -41,22 +44,25 @@ class Acl extends AbstractPlugin
 	
 	public function preDispatch( \Ez\Request $request )
 	{
-		/*
 		if(
-			\Ez\Acl::getInstance()
-			->isAllowed(
-				\Ez\Request::getInstance(),
-				\Ez\Authentication::getInstance()->getUser()
+			self::$aclImplementation
+				->isAllowed(
+					\Ez\Request::getInstance(),
+					\Ez\Authentication::getInstance()->getUser()
 			)
 		)
 		{
 			
 		}
-		*/
 	}
 	
 	public function postDispatch( \Ez\Request $request )
 	{
 		
+	}
+	
+	public static function setAclInstance( \Ez\Acl\IAcl $acl)
+	{
+		self::$aclImplementation = $acl;
 	}
 }

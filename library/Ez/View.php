@@ -28,7 +28,6 @@ class View extends View\AbstractView
 	
 	private function __construct()
 	{
-		
 	}
 	
 	/**
@@ -42,7 +41,6 @@ class View extends View\AbstractView
 		{
 			self::$instance = new View;
 		}
-		
 		return self::$instance;
 	}
 }

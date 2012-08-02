@@ -25,7 +25,7 @@ namespace Ez\Acl;
 /**
  * @MappedSuperClass
  */
-class User extends \Ez\AccessProvider
+class User extends \Ez\AccessProvider implements IUser
 {
 	/**
 	 * @Column( type="string", length=100 )

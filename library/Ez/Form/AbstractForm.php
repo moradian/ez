@@ -22,8 +22,10 @@
 
 namespace Ez\Form;
 
-class AbstractForm
+abstract class AbstractForm
 {
+    const POST_METHOD   = "post";
+    const GET_METHOD    = "get";
 	/**
 	 * The name of the form
 	 * @var string
@@ -217,6 +219,29 @@ class AbstractForm
 		$this->decorator = $decorator;
 		return $this;
 	}
+
+    /**
+     * Populates the form with received data from the client..
+     *
+     * @author  Mehdi Bakhtiari
+     * @param   \Ez\Request $request
+     * @return  \Ez\Form\AbstractForm
+     */
+    public function populateByRequest( \Ez\Request $request )
+    {
+        foreach( $this->elements->getAll() as $element )
+        {
+            if( $this->getMethod() == self::POST_METHOD )
+            {
+                $element->setValue( $request->getPost( $element->getName() ) );
+                continue;
+            }
+
+            $element->setValue( $request->getQuery( $element->getName() ) );
+        }
+
+        return $this;
+    }
 	
 	/**
 	 * Validates all elements of the form against their own validators
@@ -230,6 +255,11 @@ class AbstractForm
 		
 		foreach( $this->elements->getAll() as $element )
 		{
+            if( is_null( $element->getValidators() ) )
+            {
+                continue;
+            }
+
 			foreach( $element->getValidators()->getAll() as $validator )
 			{
 				if( !$validator->isValid( $element->getValue() ) )

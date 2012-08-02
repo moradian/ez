@@ -109,7 +109,6 @@ class M47
 	public static function M7( $str = "" )
 	{
 		$decStr		= "";
-		$finalStr	= "";
 		$encStrLen	= strlen( trim( $str ) );
 		
 		if( ( $encStrLen % 4 ) )

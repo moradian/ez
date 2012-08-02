@@ -58,13 +58,19 @@ abstract class AbstractController
 	{
 		$this->request = $request;
 	}
-	
-	public function getdefaultViewFileName()
-	{
-		return $this->defaultViewFileName;
-	}
-	
-	protected function requiresMemberUser( $freeze = false )
+
+    /**
+     * Returns the view of the controller
+     *
+     * @author Mehdi Bakhtiari
+     * @return \Ez\View\AbstractView
+     */
+    public function getView()
+    {
+        return $this->view;
+    }
+
+    protected function requiresMemberUser( $freeze = false )
 	{
 		$loginPath = "/user/authenticate/?redir=" . urlencode( $_SERVER[ "REQUEST_URI" ] );
 		

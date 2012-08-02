@@ -26,23 +26,23 @@ class Application extends Application\AbstractApplication
 {
 	function __construct()
 	{
-		$this->queryString	= $_SERVER[ "QUERY_STRING" ];
-		$this->requestURI	= str_replace(	"?" . $this->queryString, "", $_SERVER[ "REQUEST_URI" ] );
-		
-		$this->customTemplate	= null;
-		$this->customView		= null;
-		
+		$this->queryString = $_SERVER[ "QUERY_STRING" ];
+		$this->requestURI  = str_replace( "?" . $this->queryString, "", $_SERVER[ "REQUEST_URI" ] );
+
+		$this->customTemplate = null;
+		$this->customView     = null;
+
 		$this->setUpDoctrine();
-		
+
 		\Ez\Plugin\Engine::getInstance()
 			->initializePlugins( Request::getInstance()->getControllerClassName() )
 			->runPreDispatch();
-			
+
 		try
 		{
 			$this->includeControllerClassFile();
 			$this->run();
-			
+
 			\Ez\Plugin\Engine::getInstance()->runPostDispatch();
 		}
 		catch( \Exception $XCP )
@@ -50,13 +50,13 @@ class Application extends Application\AbstractApplication
 			$this->HTTP_404();
 		}
 	}
-	
+
 	private function run()
 	{
 		// INSTANTIATE THE APPROPRIATE CONTROLLER OBJ
 		$controllerClassName = Request::getInstance()->getControllerClassName();
-		$controller = new $controllerClassName;
-		
+		$controller          = new $controllerClassName;
+
 		$viewContentFile =
 			strtolower(
 				trim(
@@ -64,21 +64,30 @@ class Application extends Application\AbstractApplication
 					, "."
 				)
 			);
-			
+
 		///////////////////////////////
 		// SET CONTROLLER'S VIEW OBJ //
 		///////////////////////////////
-		
+
 		// INSTANTIATE THE APPROPRIATE VIEW OBJ
-		$view = View::getInstance();
-		$view->setRequest( Request::getInstance() );
-		
-		$view->setContentFile( $viewContentFile );
-		$view->setTemplateFile( "MainTemplate" );
-		
+        $controllerView = $controller->getView();
+
+        if( !empty( $controllerView ) )
+		{
+			$view = $controller->getView();
+		}
+		else
+		{
+			$view = View::getInstance();
+			$view->setContentFile( $viewContentFile );
+			$view->setTemplateFile( "MainTemplate" );
+		}
+
 		// SET THE CONTROLLER'S NEW VIEW
+        $view->setRequest( Request::getInstance() );
+        $view->setEncoding();
 		$controller->setView( $view );
-		
+
 		///////////////////////////////////////////////
 		// PASS THE REQUEST OBJECT TO THE CONTROLLER //
 		///////////////////////////////////////////////
@@ -93,47 +102,94 @@ class Application extends Application\AbstractApplication
 		// DISPLAY //
 		/////////////
 		$view->display();
-		
+
 		/////////////////////////////////////
 		// RUN CONTROLLER'S PostRun METHOD //
 		/////////////////////////////////////
 		$controller->postRun();
 	}
-	
+
 	/**
 	 * Bootstraps doctrine, gets an instance of \Doctrine\ORM\EntityManager
-	 * and holds it in $this->doctrineEntityManager
-	 * 
-	 * @author	Mehdi Bakhtiari <mehdone@gmail.com>
-	 * @return	void
+	7	 * and holds it in $this->doctrineEntityManager
+	 *
+	 * @author    Mehdi Bakhtiari <mehdone@gmail.com>
+	 * @return    void
 	 */
 	private function setUpDoctrine()
 	{
-		$cache	= new \Doctrine\Common\Cache\ArrayCache();
-		$config	= new \Doctrine\ORM\Configuration();
+		$dbConf = @parse_ini_file( ROOT_PATH . "/configs/db.ini" );
+		
+		if( $dbConf === false )
+		{
+			exit( "DB config file cannot be accessed!" );
+		}
+		
+		$cache  = new \Doctrine\Common\Cache\ArrayCache();
+		$config = new \Doctrine\ORM\Configuration();
 		$config->setMetadataCacheImpl( $cache );
 		$config->setMetadataDriverImpl( $config->newDefaultAnnotationDriver( PATH_TO_LIBRARY ) );
 		$config->setQueryCacheImpl( $cache );
 		$config->setProxyDir( PATH_TO_LIBRARY . "Proxy" );
 		$config->setProxyNamespace( "Proxy" );
 		$config->setAutoGenerateProxyClasses( true );
-		
-		$connOptions = array(	"driver"	=> "pdo_mysql",
-								"dbname"	=> "chidari_new",
-								"user"		=> "root",
-								"password"	=> "Oncem0re^",
-								"host"		=> "127.0.0.1"
+
+		$connOptions = array( "driver"      => $dbConf[ "driver" ],
+							  "dbname"      => $dbConf[ "dbname" ],
+							  "user"        => $dbConf[ "username" ],
+							  "password"    => $dbConf[ "password" ],
+							  "host"        => $dbConf[ "host" ]
 		);
-		
+
 		$entityManager = \Doctrine\ORM\EntityManager::create( $connOptions, $config );
-		
-		$entityManager
-			->getEventManager()
-			->addEventSubscriber( new \Doctrine\DBAL\Event\Listeners\MysqlSessionInit( "utf8", "utf8_unicode_ci" ) );
-		
+
 		// REGISTER DOCTRINE ENTITY MANAGER IN THE EZ REGISTRY SO
 		// IT IS ACCESSIBLE ACROSS ALL LAYERS AND SECTIONS OF THE
 		// WEB APPLICATION
 		\Ez\Registry::setDoctrineEntityManager( $entityManager );
+	}
+
+	/**
+	 * This method is supposed to be called from templates to include the appropriate
+	 * javascript file of the controller
+	 *
+	 * @author  Mehdi Bakhtiari
+	 * @static
+	 * @return null|string
+	 */
+	public static function getControllerJsFileName()
+	{
+		$controllerName = rtrim( Request::getInstance()->getControllerFileName(), ".php" );
+		$controllerName = strtolower( ltrim( $controllerName, "/" ) );
+		$controllerName = str_replace( "/", ".", $controllerName ) . ".js";
+
+		if( file_exists( PUBLIC_PATH . "scripts/controller/{$controllerName}" ) )
+		{
+			return "/scripts/controller/{$controllerName}";
+		}
+
+		return null;
+	}
+
+	/**
+	 * This method is supposed to be called from templates to include the appropriate
+	 * css file of the controller
+	 *
+	 * @author  Mehdi Bakhtiari
+	 * @static
+	 * @return null|string
+	 */
+	public static function getControllerCssFileName()
+	{
+		$controllerName = rtrim( Request::getInstance()->getControllerFileName(), ".php" );
+		$controllerName = strtolower( ltrim( $controllerName, "/" ) );
+		$controllerName = str_replace( "/", ".", $controllerName ) . ".css";
+
+		if( file_exists( PUBLIC_PATH . "styles/controller/{$controllerName}" ) )
+		{
+			return "/styles/controller/{$controllerName}";
+		}
+
+		return null;
 	}
 }
