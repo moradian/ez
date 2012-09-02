@@ -42,4 +42,34 @@ class User extends \Ez\AccessProvider implements IUser
 	 * @JoinColumn( name="role" )
 	 */
 	protected $role;
+
+	public function setPassword( $password )
+	{
+		$this->password = $password;
+	}
+
+	public function getPassword()
+	{
+		return $this->password;
+	}
+
+	public function setRole( $role )
+	{
+		$this->role = $role;
+	}
+
+	public function getRole()
+	{
+		return $this->role;
+	}
+
+	public function setUsername( $username )
+	{
+		$this->username = $username;
+	}
+
+	public function getUsername()
+	{
+		return $this->username;
+	}
 }

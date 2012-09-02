@@ -8,6 +8,7 @@ namespace Model;
  */
 class Client extends \Ez\Acl\User
 {
+	const ID_PADDING = "3974534";
 	/**
 	 * @Id
 	 * @Column( type="integer", length=10 )

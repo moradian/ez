@@ -26,34 +26,41 @@ abstract class AbstractCollection
 {
 	/**
 	 * Holds the type of the collection
-	 * @var		string
-	 * @author	Mehdi Bakhtiari
+	 * @var        string
+	 * @author    Mehdi Bakhtiari
 	 */
 	private $type;
-	
+
 	/**
 	 * Is the actual collection and holds items of the collection
-	 * @var		array
+	 * @var     array
 	 * @author	Mehdi Bakhtiari
 	 */
-	private	$collection = array();
-	
+	private $collection = array();
+
+	/**
+	 * The field of each element within the collection to check if two elements
+	 * are equal in the collection
+	 * @var string
+	 */
+	private $equlityField;
+
 	/**
 	 * It is mandatory to implement the constructor for each child
 	 * in the inheritance tree.
-	 * 
+	 *
 	 * @param	string $type
-	 * @author	Mehdi Bakhtiari
+	 * @author  Mehdi Bakhtiari
 	 */
 	abstract public function __construct( $type );
-	
+
 	/**
 	 * Is the setter for the $type property of the collection
-	 * 
+	 *
 	 * @param	string $type
-	 * @throws	Exception	If the type of the collection has already been set
-	 * @return	void
-	 * @author	Mehdi Bakhtiari
+	 * @throws  \Exception    If the type of the collection has already been set
+	 * @return  void
+	 * @author  Mehdi Bakhtiari
 	 */
 	protected function setType( $type )
 	{
@@ -61,67 +68,48 @@ abstract class AbstractCollection
 		{
 			throw new \Exception( "The type of this collection has already been set to {$this->type}" );
 		}
-		
+
 		$this->type = trim( $type );
 	}
-	
+
 	/**
 	 * Getter of $type
-	 * 
+	 *
 	 * @return	string $this->type
-	 * @author	Mehdi Bakhtiari
+	 * @author  Mehdi Bakhtiari
 	 */
 	protected function getType()
 	{
 		return $this->type;
 	}
-	
+
 	/**
 	 * Enter description here ...
-	 * 
+	 *
 	 * @param	object $item
-	 * @throws	Exception	If the type of the collection is not specified yet
-	 * 						If the type of the provided $item does not match with $this->type
-	 * 
+	 * @throws	\Exception    If the type of the collection is not specified yet
+	 *                       If the type of the provided $item does not match with $this->type
+	 *
 	 * @return	\Ez\Collection\AbstractCollection
-	 * @author	Mehdi Bakhtiari
+	 * @author  Mehdi Bakhtiari
 	 */
 	public function addItem( $item )
 	{
-		if( empty( $this->type ) )
-		{
-			throw new \Exception( "The type of the collection has not yet been specified." );
-		}
-		
-		if( class_exists( $this->type, true ) )
-		{
-			if( get_class( $item ) !== $this->type && !is_a( $item, $this->type ) )
-			{
-				throw new \Exception( "The provided item is not an instance of {$this->type}" );
-			}
-		}
-		else 
-		{
-			if( gettype( $item ) !== $this->type )
-			{
-				throw new \Exception( "The provided item is not a/an {$this->type}" );
-			}
-		}
-		
+		$this->checkElement( $item );
 		array_push( $this->collection, $item );
 		return $this;
 	}
-	
+
 	/**
 	 * Returns the item at the position of $index
-	 * 
+	 *
 	 * @param	integer $index
-	 * @throws	Exception	If the provided $index is not an integer
-	 * 						If the desired index is greater than the length of $this->collection
-	 * 							or is less than zero
-	 * 
+	 * @throws	\Exception    If the provided $index is not an integer
+	 *                        If the desired index is greater than the length of $this->collection
+	 *                        or is less than zero
+	 *
 	 * @return	object $this->collection[ $index ]
-	 * @author	Mehdi Bakhtiari
+	 * @author  Mehdi Bakhtiari
 	 */
 	public function getItem( $index )
 	{
@@ -129,20 +117,20 @@ abstract class AbstractCollection
 		{
 			throw new \Exception( "What do you mean by {$index} index!?" );
 		}
-		
+
 		if( intval( $index ) >= count( $this->collection ) || intval( $index ) < 0 )
 		{
 			throw new \Exception( "There is not any item at position {$index}" );
 		}
-		
+
 		return $this->collection[ $index ];
 	}
-	
+
 	/**
 	 * Enter description here ...
-	 * 
-	 * @return	array $this->collection
-	 * @author	Mehdi Bakhtiari
+	 *
+	 * @return    array $this->collection
+	 * @author    Mehdi Bakhtiari
 	 */
 	public function getAll()
 	{
@@ -151,11 +139,11 @@ abstract class AbstractCollection
 
 	/**
 	 * Populates the collection with the provided array
-	 * 
-	 * @param	array $source
-	 * @uses	$this->addItem()
-	 * @return	void
-	 * @author	Mehdi Bakhtiari
+	 *
+	 * @param    array $source
+	 * @uses    $this->addItem()
+	 * @return    void
+	 * @author    Mehdi Bakhtiari
 	 */
 	public function populateWith( array $source )
 	{
@@ -164,15 +152,79 @@ abstract class AbstractCollection
 			$this->addItem( $item );
 		}
 	}
-	
+
+	/**
+	 * Removes an element from the collection
+	 *
+	 * @author    Mehdi Bakhtiari
+	 * @param    $item
+	 * @throws    \Exception
+	 */
+	public function removeItem( $item )
+	{
+		$newCollection = array();
+		$equalityField = $this->equlityField;
+		$this->checkElement( $item );
+
+		if( empty( $this->equlityField ) )
+		{
+			throw new \Exception( "No equality field has been provided." );
+		}
+
+		foreach( $this->collection as $element )
+		{
+			if( @call_user_method( "get" . ucwords( $equalityField ), $element )
+				=== @call_user_method( "get" . ucwords( $equalityField ), $item )
+			)
+			{
+				continue;
+			}
+
+			$newCollection[ ] = $element;
+		}
+
+		$this->collection = $newCollection;
+	}
+
 	/**
 	 * Cleans and resets $this->collection
-	 * 
-	 * @return	void
-	 * @author	Mehdi Bakhtiari
+	 *
+	 * @return    void
+	 * @author    Mehdi Bakhtiari
 	 */
 	public function clean()
 	{
 		$this->collection = array();
+	}
+
+	/**
+	 * @param string $equlityField
+	 */
+	public function setEqulityField( $equlityField )
+	{
+		$this->equlityField = $equlityField;
+	}
+
+	private function checkElement( $item )
+	{
+		if( empty( $this->type ) )
+		{
+			throw new \Exception( "The type of the collection has not yet been specified." );
+		}
+
+		if( class_exists( $this->type, true ) )
+		{
+			if( get_class( $item ) !== $this->type && !is_a( $item, $this->type ) )
+			{
+				throw new \Exception( "The provided item is not an instance of {$this->type}" );
+			}
+		}
+		else
+		{
+			if( gettype( $item ) !== $this->type )
+			{
+				throw new \Exception( "The provided item is not a/an {$this->type}" );
+			}
+		}
 	}
 }

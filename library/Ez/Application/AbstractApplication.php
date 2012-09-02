@@ -49,7 +49,6 @@ abstract class AbstractApplication
 	protected function includeControllerClassFile()
 	{
 		$controllerPath = PATH_TO_CONTROLLERS . \Ez\Request::getInstance()->getControllerFileName();
-		exit( $controllerPath );
 
 		if( file_exists( $controllerPath ) )
 		{
@@ -63,6 +62,6 @@ abstract class AbstractApplication
 
 	protected function HTTP_404()
 	{
-		include_once PUBLIC_PATH . "404.htm";
+		header( "Location: /messages/error404" );
 	}
 }

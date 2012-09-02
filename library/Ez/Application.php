@@ -41,14 +41,15 @@ class Application extends Application\AbstractApplication
 		try
 		{
 			$this->includeControllerClassFile();
-			$this->run();
-
-			\Ez\Plugin\Engine::getInstance()->runPostDispatch();
 		}
 		catch( \Exception $XCP )
 		{
 			$this->HTTP_404();
+			exit;
 		}
+
+		$this->run();
+		\Ez\Plugin\Engine::getInstance()->runPostDispatch();
 	}
 
 	private function run()
@@ -70,9 +71,9 @@ class Application extends Application\AbstractApplication
 		///////////////////////////////
 
 		// INSTANTIATE THE APPROPRIATE VIEW OBJ
-        $controllerView = $controller->getView();
+		$controllerView = $controller->getView();
 
-        if( !empty( $controllerView ) )
+		if( !empty( $controllerView ) )
 		{
 			$view = $controller->getView();
 		}
@@ -84,20 +85,20 @@ class Application extends Application\AbstractApplication
 		}
 
 		// SET THE CONTROLLER'S NEW VIEW
-        $view->setRequest( Request::getInstance() );
-        $view->setEncoding();
+		$view->setRequest( Request::getInstance() );
+		$view->setEncoding();
 		$controller->setView( $view );
 
 		///////////////////////////////////////////////
 		// PASS THE REQUEST OBJECT TO THE CONTROLLER //
 		///////////////////////////////////////////////
 		$controller->setRequest( Request::getInstance() );
-		
+
 		////////////////////////
 		// RUN THE CONTROLLER //
 		////////////////////////
 		$controller->run();
-		
+
 		/////////////
 		// DISPLAY //
 		/////////////
@@ -119,12 +120,12 @@ class Application extends Application\AbstractApplication
 	private function setUpDoctrine()
 	{
 		$dbConf = @parse_ini_file( ROOT_PATH . "/configs/db.ini" );
-		
+
 		if( $dbConf === false )
 		{
 			exit( "DB config file cannot be accessed!" );
 		}
-		
+
 		$cache  = new \Doctrine\Common\Cache\ArrayCache();
 		$config = new \Doctrine\ORM\Configuration();
 		$config->setMetadataCacheImpl( $cache );
@@ -191,5 +192,10 @@ class Application extends Application\AbstractApplication
 		}
 
 		return null;
+	}
+
+	public static function redirectToHome()
+	{
+		header( "Location: /" );
 	}
 }
