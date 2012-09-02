@@ -22,70 +22,35 @@
 
 namespace Ez\Form\Validator;
 
-class MinLength extends AbstractValidator
+class NotNull extends AbstractValidator
 {
 	/**
-	 * @var integer
+	 * @author	Mehdi Bakhtiari
 	 */
-	private $minLength;
-
-	/**
-	 * @author   Mehdi Bakhtiari
-	 * @param    int $length
-	 */
-	public function __construct( $length )
+	public function __construct()
 	{
-		if( !is_numeric( $length ) )
-		{
-			throw new \Exception( "Provided length for the MinLength validator must be numeric." );
-		}
-
-		$this->minLength = $length;
 	}
-
-	/**
-	 * Returns the min length
-	 *
-	 * @author    Mehdi Bakhtiari
-	 * @return    int
-	 */
-	public function getMinLength()
-	{
-		return $this->minLength;
-	}
-
+	
 	/**
 	 * Returns a generated error message for an element
-	 *
-	 * @author    Mehdi Bakhtiari
-	 * @param     \Ez\Form\Element\AbstractElement $element
-	 * @return    string
+	 * 
+	 * @author	Mehdi Bakhtiari
+	 * @param 	\Ez\Form\Element\AbstractElement $element
+	 * @return	string
 	 */
 	public function getErrorMessage( \Ez\Form\Element\AbstractElement $element )
 	{
-		return sprintf(
-			$this->errorMessagePattern,
-			"Value of",
-			$element->getLabel(),
-			"need to be at least {$this->minLength} letters."
-		);
+		return sprintf( $this->errorMessagePattern, "", $element->getLabel(), "cannot be left empty." );
 	}
-
+	
 	/**
-	 * Validates the value of the element against $this->minLength
-	 *
-	 * @author    Mehdi Bakhtiari
-	 * @see       Ez\Form\Validator.AbstractValidator::isValid()
-	 * @throws    Exception If the max length has not been specified yet
-	 * @return    boolean
+	 * @author	Mehdi Bakhtiari
+	 * @see		Ez\Form\Validator.AbstractValidator::isValid()
+	 * @return	boolean
 	 */
 	public function isValid( $value )
 	{
-		if( !is_numeric( $this->minLength ) || empty( $this->minLength ) )
-		{
-			throw new \Exception( "Provided length for the minLength validator must be numeric." );
-		}
-
-		return ( strlen( $value ) >= $this->minLength );
+		$value = trim( $value );
+		return	!( ( strlen( $value ) === 0 ) || ( empty( $value ) ) );
 	}
 }

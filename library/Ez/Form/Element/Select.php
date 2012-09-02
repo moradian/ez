@@ -29,6 +29,11 @@ class Select extends AbstractElement
 	 */
 	private $options;
 	
+	public function __construct()
+	{
+		$this->validators = new \Ez\Form\Validator\Collection();
+	}
+	
 	/**
 	 * Sets options of the select box
 	 * 

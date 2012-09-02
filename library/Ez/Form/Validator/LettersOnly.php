@@ -22,36 +22,13 @@
 
 namespace Ez\Form\Validator;
 
-class MinLength extends AbstractValidator
+class LettersOnly extends AbstractValidator
 {
 	/**
-	 * @var integer
-	 */
-	private $minLength;
-
-	/**
-	 * @author   Mehdi Bakhtiari
-	 * @param    int $length
-	 */
-	public function __construct( $length )
-	{
-		if( !is_numeric( $length ) )
-		{
-			throw new \Exception( "Provided length for the MinLength validator must be numeric." );
-		}
-
-		$this->minLength = $length;
-	}
-
-	/**
-	 * Returns the min length
-	 *
 	 * @author    Mehdi Bakhtiari
-	 * @return    int
 	 */
-	public function getMinLength()
+	public function __construct()
 	{
-		return $this->minLength;
 	}
 
 	/**
@@ -67,25 +44,29 @@ class MinLength extends AbstractValidator
 			$this->errorMessagePattern,
 			"Value of",
 			$element->getLabel(),
-			"need to be at least {$this->minLength} letters."
+			"needs to be constructed by alphabet letters only."
 		);
 	}
 
 	/**
-	 * Validates the value of the element against $this->minLength
-	 *
 	 * @author    Mehdi Bakhtiari
 	 * @see       Ez\Form\Validator.AbstractValidator::isValid()
-	 * @throws    Exception If the max length has not been specified yet
 	 * @return    boolean
 	 */
 	public function isValid( $value )
 	{
-		if( !is_numeric( $this->minLength ) || empty( $this->minLength ) )
+		$valueArray = str_split( $value, 1 );
+
+		foreach( $valueArray as $letter )
 		{
-			throw new \Exception( "Provided length for the minLength validator must be numeric." );
+			$asciiCode = ord( $letter );
+
+			if( ( ( $asciiCode < 97 ) || ( $asciiCode > 122 ) ) && ( $asciiCode < 65 || $asciiCode > 95 ) && $asciiCode != 32 )
+			{
+				return false;
+			}
 		}
 
-		return ( strlen( $value ) >= $this->minLength );
+		return true;
 	}
 }

@@ -22,36 +22,18 @@
 
 namespace Ez\Form\Validator;
 
-class MinLength extends AbstractValidator
+class Email extends AbstractValidator
 {
 	/**
-	 * @var integer
+	 * @var string
 	 */
-	private $minLength;
+	private static $pattern = "/\w{2,}@\w{2,}(\.[a-zA-Z0-9]{2,4})*(\.[a-zA-Z0-9]{2,4})$/";
 
 	/**
-	 * @author   Mehdi Bakhtiari
-	 * @param    int $length
-	 */
-	public function __construct( $length )
-	{
-		if( !is_numeric( $length ) )
-		{
-			throw new \Exception( "Provided length for the MinLength validator must be numeric." );
-		}
-
-		$this->minLength = $length;
-	}
-
-	/**
-	 * Returns the min length
-	 *
 	 * @author    Mehdi Bakhtiari
-	 * @return    int
 	 */
-	public function getMinLength()
+	public function __construct()
 	{
-		return $this->minLength;
 	}
 
 	/**
@@ -65,27 +47,19 @@ class MinLength extends AbstractValidator
 	{
 		return sprintf(
 			$this->errorMessagePattern,
-			"Value of",
+			"The provided value for",
 			$element->getLabel(),
-			"need to be at least {$this->minLength} letters."
+			"does not seem to be a valid email address."
 		);
 	}
 
 	/**
-	 * Validates the value of the element against $this->minLength
-	 *
 	 * @author    Mehdi Bakhtiari
 	 * @see       Ez\Form\Validator.AbstractValidator::isValid()
-	 * @throws    Exception If the max length has not been specified yet
 	 * @return    boolean
 	 */
 	public function isValid( $value )
 	{
-		if( !is_numeric( $this->minLength ) || empty( $this->minLength ) )
-		{
-			throw new \Exception( "Provided length for the minLength validator must be numeric." );
-		}
-
-		return ( strlen( $value ) >= $this->minLength );
+		return preg_match( self::$pattern, $value );
 	}
 }

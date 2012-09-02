@@ -26,6 +26,7 @@ abstract class AbstractValidator
 {
 	protected $name;
 	protected $clientSideCode;
+	protected $errorMessagePattern = "%s <span style=\"font-weight:bold; font-style:italic\">%s</span> %s";
 	
 	/**
 	 * Validates the element.
