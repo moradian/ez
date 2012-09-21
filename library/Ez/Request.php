@@ -24,77 +24,94 @@ namespace Ez;
 
 class Request
 {
-	private	$params,
-			$paramsKeys,
-			$query,
-			$queryKeys,
-			$post,
-			$postKeys;
-	
+	/**
+	 * @var array
+	 */
+	private $params;
+
+	/**
+	 * @var array
+	 */
+	private $paramsKeys;
+
+	/**
+	 * @var array
+	 */
+	private $query;
+
+	/**
+	 * @var array
+	 */
+	private $queryKeys;
+
+	/**
+	 * @var array
+	 */
+	private $post;
+
+	/**
+	 * @var array
+	 */
+	private $postKeys;
+
+	/**
+	 * @var string
+	 */
 	private $controllerClassName;
-	
+
+	/**
+	 * @var string
+	 */
 	private $controllerFileName;
-	
+
+	/**
+	 * @var mixed
+	 */
 	private $requestUri;
-	
+
+	/**
+	 * @var string
+	 */
 	private $queryString;
-	
+
+	/**
+	 * @var \Ez\Request
+	 */
 	private static $instance;
 
-    /**
-     * @static
-     * @return \Ez\Request
-     */
-    public static function getInstance()
+	/**
+	 * @static
+	 * @return \Ez\Request
+	 */
+	public static function getInstance()
 	{
 		if( !( self::$instance instanceof self ) )
 		{
 			self::$instance = new Request();
 		}
-		
+
 		return self::$instance;
-	}		
-	
+	}
+
 	private function __construct()
 	{
 		$this->stripTagsOffUserInput();
-		
-		$this->queryString	= $_SERVER[ "QUERY_STRING" ];
-		$this->requestUri	= str_replace(	"?" . $this->queryString, "", $_SERVER[ "REQUEST_URI" ] );
-		
+
+		$this->queryString = $_SERVER[ "QUERY_STRING" ];
+		$this->requestUri  = str_replace( "?" . $this->queryString, "", $_SERVER[ "REQUEST_URI" ] );
+
 		$this
 			->generateControllerFileName()
 			->generateControllerClassName();
-		
-		$this->query		= $_GET;
-		$this->queryKeys	= array_keys( $_GET );
-		$this->post			= $_POST;
-		$this->postKeys		= array_keys( $_POST );
-		$this->params		= array_merge( $_GET, $_POST );
-		$this->paramsKeys	= array_keys( $this->params );
+
+		$this->query      = $_GET;
+		$this->queryKeys  = array_keys( $_GET );
+		$this->post       = $_POST;
+		$this->postKeys   = array_keys( $_POST );
+		$this->params     = array_merge( $_GET, $_POST );
+		$this->paramsKeys = array_keys( $this->params );
 	}
-	
-	/**
-	 * Strips potential tags off any parameter in the request
-	 * @return void
-	 * @author Mehdi Bakhtiari
-	 */
-	private function stripTagsOffUserInput()
-	{
-		$getKeys	= array_keys( $_GET );
-		$postKeys	= array_keys( $_POST );
-		
-		foreach( $getKeys as $key )
-		{
-			$_GET[ $key ] = strip_tags( $_GET[ $key ] );
-		}
-	
-		foreach( $postKeys as $key )
-		{
-			$_POST[ $key ] = strip_tags( $_POST[ $key ] );
-		}
-	}
-	
+
 	/**
 	 * Tells whether the request is POST or not
 	 * @return boolean
@@ -104,7 +121,7 @@ class Request
 	{
 		return ( strtoupper( $_SERVER[ "REQUEST_METHOD" ] ) === "POST" );
 	}
-	
+
 	/**
 	 * Tells whether the request is a XMLHttpRequest or not
 	 * @return boolean
@@ -119,14 +136,16 @@ class Request
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
-	
+
 	/**
 	 * Returns the value for the $key parameter in the query string
-	 * @param string $key		Query string parameter name
-	 * @param string $default	The value to return if no matching parameter is found
+	 *
+	 * @param string $key        Query string parameter name
+	 * @param string $default    The value to return if no matching parameter is found
+	 *
 	 * @return string
 	 * @author Mehdi Bakhtiari
 	 */
@@ -136,14 +155,16 @@ class Request
 		{
 			return $this->query[ $key ];
 		}
-		
+
 		return $default;
 	}
-	
+
 	/**
 	 * Returns the value for the $key parameter in the POST parameters
-	 * @param string $key		POST parameter name
-	 * @param string $default	The value to return if no matching parameter is found
+	 *
+	 * @param string $key        POST parameter name
+	 * @param string $default    The value to return if no matching parameter is found
+	 *
 	 * @return string
 	 * @author Mehdi Bakhtiari
 	 */
@@ -153,14 +174,16 @@ class Request
 		{
 			return $this->post[ $key ];
 		}
-		
+
 		return $default;
 	}
-	
+
 	/**
 	 * Returns the value for the $key parameter in the query string or either POST
-	 * @param string $key		Parameter name
-	 * @param string $default	The value to return if no matching parameter is found
+	 *
+	 * @param string $key        Parameter name
+	 * @param string $default    The value to return if no matching parameter is found
+	 *
 	 * @return string
 	 * @author Mehdi Bakhtiari
 	 */
@@ -170,16 +193,99 @@ class Request
 		{
 			return $this->params[ $key ];
 		}
-		
+
 		return $default;
 	}
-	
+
+	/**
+	 * Returns filename of the responsible controller to handle the request
+	 *
+	 * @author    Mehdi Bakhtiari
+	 * @return    string
+	 */
+	public function getControllerFileName()
+	{
+		return $this->controllerFileName;
+	}
+
+	/**
+	 * Returns name of the class of the responsible controller to handle the request.
+	 *
+	 * @author    Mehdi Bakhtiari
+	 * @return    string
+	 */
+	public function getControllerClassName()
+	{
+		return $this->
+			controllerClassName;
+	}
+
+	public function populateObj( &$obj, array $ignoreList = null )
+	{
+		if( is_object( $obj ) )
+		{
+			$objProperties = \Ez\Util\Reflection::getProperties( $obj );
+
+			if( count( $objProperties[ \Ez\Util\Reflection::PUBLIC_PROP ] ) > 0 )
+			{
+				foreach( $objProperties[ \Ez\Util\Reflection::PUBLIC_PROP ] as $property )
+				{
+					if( in_array( $property, $ignoreList ) )
+					{
+						continue;
+					}
+
+					$obj->$property = $this->getParam( $property );
+				}
+			}
+
+			if( count( $objProperties[ \Ez\Util\Reflection::NON_PUBLIC_PROP ] ) > 0 )
+			{
+				foreach( $objProperties[ \Ez\Util\Reflection::NON_PUBLIC_PROP ] as $property )
+				{
+					if( in_array( $property, $ignoreList ) )
+					{
+						continue;
+					}
+
+					$setterMethod = "set" . ucwords( $property );
+					$obj->$setterMethod( $this->getParam( $property ) );
+				}
+			}
+		}
+	}
+
+	/**
+	 * Generates the filename of the responsible controller to serve the request
+	 *
+	 * @author    Mehdi Bakhtiari
+	 * @return    \Ez\Request
+	 */
+	private function generateControllerFileName()
+	{
+		$controllerNameParts = explode( "/", trim( $this->requestUri, "/" ) );
+
+		foreach( $controllerNameParts as &$item )
+		{
+			$item = ucwords( $item );
+		}
+
+		$this->controllerFileName = implode( "/", $this->controllerFileName ) . ".php";
+
+		if( $this->controllerFileName === ".php" )
+		{
+			$this->controllerFileName = "Home/Index.php";
+		}
+
+		return $this;
+	}
+
 	/**
 	 * Generates  the class name of the responsible controller
 	 * to serve to the request
-	 * 
-	 * @author	Mehdi Bakhtiari
-	 * @return	\Ez\Request
+	 *
+	 * @author    Mehdi Bakhtiari
+	 * @return    \Ez\Request
 	 */
 	private function generateControllerClassName()
 	{
@@ -188,65 +294,39 @@ class Request
 		// EXISTS BY CALLING includeControllerClassFile().
 		// BY CALLING THIS METHOD THE CONTROLLER CLASS NAME IS BUILT AND READY TO
 		// BE INSTANCIATED.
-		
+
 		// WE ARE ASSUMING THAT $this->controllerFileName HAS BEEN GENERATED
 		// AND FILLED WITH PROPER VALUE BY INVOKING generatecontrollerFileName()
-		
-		$this->controllerClassName = str_replace(	"/",
-													"\\",
-													str_replace(	".php",
-																	"",
-																	$this->controllerFileName
-													)
+
+		$this->controllerClassName = str_replace( "/",
+			"\\",
+			str_replace( ".php",
+				"",
+				$this->controllerFileName
+			)
 		) . "Controller";
 
 		return $this;
 	}
-	
+
 	/**
-	 * Generates the filename of the responsible controller to serve the request
-	 * 
-	 * @author	Mehdi Bakhtiari
-	 * @return	\Ez\Request
+	 * Strips potential tags off any parameter in the request
+	 * @return void
+	 * @author Mehdi Bakhtiari
 	 */
-	private function generateControllerFileName()
+	private function stripTagsOffUserInput()
 	{
-		$this->controllerFileName = explode( "/", trim( $this->requestUri, "/" ) );
-		
-		foreach( $this->controllerFileName as &$item )
+		$getKeys  = array_keys( $_GET );
+		$postKeys = array_keys( $_POST );
+
+		foreach( $getKeys as $key )
 		{
-			$item = ucwords( $item );
+			$_GET[ $key ] = strip_tags( $_GET[ $key ] );
 		}
-		
-		$this->controllerFileName = implode( "/", $this->controllerFileName ) . ".php";
-		
-		if( $this->controllerFileName === ".php" )
+
+		foreach( $postKeys as $key )
 		{
-			$this->controllerFileName = "Home/Index.php";
+			$_POST[ $key ] = strip_tags( $_POST[ $key ] );
 		}
-		
-		return $this;
-	}
-	
-	/**
-	 * Returns filename of the responsible controller to handle the request
-	 * 
-	 * @author	Mehdi Bakhtiari
-	 * @return	string
-	 */
-	public function getControllerFileName()
-	{
-		return $this->controllerFileName;
-	}
-	
-	/**
-	 * Returns name of the class of the responsible controller to handle the request.
-	 * 
-	 * @author	Mehdi Bakhtiari
-	 * @return	string
-	 */
-	public function getControllerClassName()
-	{
-		return $this->controllerClassName;
 	}
 }
