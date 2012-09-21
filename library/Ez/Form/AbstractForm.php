@@ -28,54 +28,63 @@ abstract class AbstractForm
 	const GET_METHOD  = "get";
 	/**
 	 * The name of the form
+	 *
 	 * @var string
 	 */
 	protected $name;
 
 	/**
 	 * Elements of the form
+	 *
 	 * @var \Ez\Form\Element\Collection
 	 */
 	protected $elements;
 
 	/**
 	 * URI to submit the form to
+	 *
 	 * @var string
 	 */
 	protected $action;
 
 	/**
 	 * Method to submit the form by
+	 *
 	 * @var string GET/POST
 	 */
 	protected $method;
 
 	/**
 	 * Flag to determine if the form will be submitted by an HttpXmlRequest or not
+	 *
 	 * @var boolean
 	 */
 	protected $isAjax;
 
 	/**
 	 * Decorator to be used to render the form
+	 *
 	 * @var \Ez\Form\Decorator\AbstractDecorator
 	 */
 	protected $decorator;
 
 	/**
 	 * Holds the error messages of the form, generated after the validation
+	 *
 	 * @var array
 	 */
 	protected $errorMessages = array();
 
 	/**
 	 * Holds field specific error messages
+	 *
 	 * @var array
 	 */
 	protected $fieldMessages = array();
 
 	/**
 	 * Holds the fine validated fields
+	 *
 	 * @var array
 	 */
 	protected $fineFields = array();
@@ -292,6 +301,8 @@ abstract class AbstractForm
 						"cssSelector" => $this->getElementCssSelector( $element ),
 						"message"     => $errorMessage
 					);
+
+					break;
 				}
 			}
 		}
@@ -299,7 +310,7 @@ abstract class AbstractForm
 
 		foreach( $fineElementsCollection->getAll() as $item )
 		{
-			$this->fineFields[] = $this->getElementCssSelector( $item );
+			$this->fineFields[ ] = $this->getElementCssSelector( $item );
 		}
 
 		return $isValid;

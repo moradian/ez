@@ -23,41 +23,61 @@ namespace Ez\View;
 
 abstract class AbstractView
 {
-    protected $templateFile;
+	/**
+	 * @var string
+	 */
+	protected $templateFile;
 
-	protected   $contentFile,
-				$encoding,
-				$title,
-				$request,
+	/**
+	 * @var string
+	 */
+	protected $contentFile;
 
-				$metaKeywords,
-				$metaDescription;
+	/**
+	 * @var string
+	 */
+	protected $encoding;
 
-	// THIS ARRAY PROPERTY IS USED TO SET VALUES
-	// TO THE VIEW OBJ TO BE USED AND DISPLAYED
-	protected	$data				= array();
-	public		$JSLibsToInclude	= array();
+	/**
+	 * @var string
+	 */
+	protected $title;
+
+	/**
+	 * @var string
+	 */
+	protected $request;
+
+	/**
+	 * @var string
+	 */
+	protected $metaKeywords;
+
+	/**
+	 * @var string
+	 */
+	protected $metaDescription;
+
+	/**
+	 * @var array
+	 */
+	protected $data = array();
+
+	/**
+	 * @var array
+	 */
+	public $jsFilesToInclude = array();
 
 	static function determineView( $code )
 	{
 		// THIS METHOD RETURNS THE VIEW CLASS FILE NAME WITHOUT
 		// THE THE EXTENSION ".php"
 
-		$archive =	array(	"chidari"			=> "what.is.chidari",
-							"faq"				=> "faq",
-							"about"				=> "about.us",
-							"contact"			=> "contact.us",
-							"tos"				=> "terms.of.service",
-							"policy"			=> "privacy.policy",
-							"manual"			=> "manual.menu",
-							"manual-payment"	=> "manual.payment",
-							"manual-ads"		=> "manual.ads",
-							"manual-chidari"	=> "manual.chidari"
-		);
+		$archive = array();
 
-		return	array_key_exists( $code, $archive )
-				? $archive[ $code ]
-				: null;
+		return array_key_exists( $code, $archive )
+			? $archive[ $code ]
+			: null;
 	}
 
 	static function determineTemplate( $code )
@@ -65,13 +85,13 @@ abstract class AbstractView
 		// THIS METHOD RETURNS THE TEMPLATE FILE NAME WITHOUT
 		// THE THE EXTENSION ".php"
 
-		$archive =	array(	"mehdi"	=> "home" );
+		$archive = array();
 
-		return	array_key_exists( $code, $archive )
-				?
-				$archive[ $code ]
-				:
-				null;
+		return array_key_exists( $code, $archive )
+			?
+			$archive[ $code ]
+			:
+			null;
 	}
 
 	public function setTemplateFile( $file )
@@ -90,9 +110,9 @@ abstract class AbstractView
 	 * Passes the request object to the view in case it is
 	 * going to be accessed within the view
 	 *
-	 * @author	Mehdi Bakhtiari
-	 * @param	\Ez\Request $request
-	 * @return	\Ez\View\AbstractView
+	 * @param    \Ez\Request $request
+	 * @return    \Ez\View\AbstractView
+	 * @author    Mehdi Bakhtiari
 	 */
 	public function setRequest( \Ez\Request $request )
 	{
@@ -112,9 +132,9 @@ abstract class AbstractView
 			return $this->request;
 		}
 
-		return	array_key_exists( $key, $this->data )
-				? $this->data[ $key ]
-				: "";
+		return array_key_exists( $key, $this->data )
+			? $this->data[ $key ]
+			: "";
 	}
 
 	public function display()
@@ -128,15 +148,15 @@ abstract class AbstractView
 
 		// INCLUDE THE TEMPLATE FILE
 
-        include_once $this->templateFile;
+		include_once $this->templateFile;
 	}
 
 	/**
 	 * Sets the content file of the view
 	 *
-	 * @author	Mehdi Bakhtiari
-	 * @param	string $file Filename without the .php extension
-	 * @return	\Ez\View\AbstractView
+	 * @param    string $file Filename without the .php extension
+	 * @return    \Ez\View\AbstractView
+	 * @author    Mehdi Bakhtiari
 	 */
 	public function setContentFile( $file )
 	{
@@ -151,8 +171,8 @@ abstract class AbstractView
 	/**
 	 * Returns the name of the content file fo the view
 	 *
-	 * @author	Mehdi Bakhtiari
-	 * @return	string
+	 * @return    string
+	 * @author    Mehdi Bakhtiari
 	 */
 	public function getContentFile()
 	{
@@ -162,9 +182,9 @@ abstract class AbstractView
 	/**
 	 * Sets the encoding of the view
 	 *
-	 * @author	Mehdi Bakhtiari
-	 * @param	string $encoding
-	 * @return	\Ez\View\AbstractView
+	 * @param    string $encoding
+	 * @return    \Ez\View\AbstractView
+	 * @author    Mehdi Bakhtiari
 	 */
 	public function setEncoding( $encoding = "UTF-8" )
 	{
@@ -175,8 +195,8 @@ abstract class AbstractView
 	/**
 	 * Returns the content encoding of the view
 	 *
-	 * @author	Mehdi Bakhtiari
-	 * @return	string
+	 * @return    string
+	 * @author    Mehdi Bakhtiari
 	 */
 	public function getEncoding()
 	{
@@ -186,9 +206,9 @@ abstract class AbstractView
 	/**
 	 * Sets the title of the view
 	 *
-	 * @author	Mehdi Bakhtiari
-	 * @param	string $title
-	 * @return	\Ez\View\AbstractView
+	 * @param    string $title
+	 * @return    \Ez\View\AbstractView
+	 * @author    Mehdi Bakhtiari
 	 */
 	public function setTitle( $title )
 	{
@@ -199,11 +219,21 @@ abstract class AbstractView
 	/**
 	 * Returns the title of the view
 	 *
-	 * @author	Mehdi Bakhtiari
-	 * @return	string
+	 * @return    string
+	 * @author    Mehdi Bakhtiari
 	 */
 	public function getTitle()
 	{
 		return $this->title;
+	}
+
+	private function placeholder( $name )
+	{
+		$path = PATH_TO_VIEWS . "placeholders/{$name}.php";
+
+		if( file_exists( $path ) )
+		{
+			include_once $path;
+		}
 	}
 }

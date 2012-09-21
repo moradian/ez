@@ -1,0 +1,38 @@
+body {
+	margin      : 0px;
+	font-family : tahoma;
+	font-size   : 14px;
+}
+
+.roundedBy5Radius {
+	-moz-border-radius : 5px;
+	border-radius      : 5px;
+}
+
+.roundedBy10Radius {
+	-moz-border-radius : 10px;
+	border-radius      : 10px;
+}
+
+input, select {
+	font-size : 16px;
+	padding   : 4px;
+	color     : #808080;
+	border    : 1px #CCCCCC solid;
+}
+
+a {
+	text-decoration : none;
+}
+
+a:hover {
+	text-decoration : none;
+}
+
+a:visited {
+	text-decoration : none;
+}
+
+a:visited:hover {
+	text-decoration : none;
+}

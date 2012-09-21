@@ -270,7 +270,7 @@ class Request
 			$item = ucwords( $item );
 		}
 
-		$this->controllerFileName = implode( "/", $this->controllerFileName ) . ".php";
+		$this->controllerFileName = implode( "/", $controllerNameParts ) . ".php";
 
 		if( $this->controllerFileName === ".php" )
 		{
