@@ -1,17 +1,14 @@
 function AjaxForm()
 {
-	this.formId				= null;
-	this.form				= null;
-	this.successURI			= null;
-	this.successFunc		= null;
-	this.errorMessagesPane	= null;
-	this.response			= null;
+	this.form = null;
+	this.successURI = null;
+	this.successFunc = null;
+	this.messagePane = null;
+	this.response = null;
 }
 
 AjaxForm.prototype.setFormId = function( id )
 {
-	this.formId = id;
-
 	if( $( "form[id='" + id + "']" ).length > 0 )
 	{
 		this.form = $( "form[id='" + id + "']" );
@@ -22,7 +19,7 @@ AjaxForm.prototype.setFormId = function( id )
 	}
 };
 
-AjaxForm.prototype.submit = function()
+AjaxForm.prototype.submit = function( callback )
 {
 	if( this.form == null )
 	{
@@ -37,6 +34,11 @@ AjaxForm.prototype.submit = function()
 		success  : function( response )
 		{
 			this.instance.processResponse( response );
+
+			if( callback != undefined && typeof callback == "function" )
+			{
+				callback();
+			}
 		}
 	} );
 };
@@ -57,12 +59,19 @@ AjaxForm.prototype.processResponse = function( response )
 		if( this.successURI != null )
 		{
 			top.location = this.successURI;
+			return;
 		}
 
 		if( this.successFunc != null )
 		{
-			this.successFunc();
+			this.successFunc( response );
+			return;
 		}
+
+		console.log( this.response );
+
+		this.showSuccessMessage();
+		this.highlightFields( this.response );
 	}
 	else
 	{
@@ -74,34 +83,36 @@ AjaxForm.prototype.processResponse = function( response )
 
 AjaxForm.prototype.prepareErrorListPane = function()
 {
-	if( this.errorMessagesPane == null )
+	if( this.messagePane == null )
 	{
 		throw new Error( "Error messages pane has not been specified." );
 	}
 
-	this.errorMessagesPane
+	this.messagePane
 		.css( {
-			"border"     : "1px #FF6600 solid",
-			"background" : "#F8F8F8",
-			"color"      : "#FF0000",
-			"padding"    : "10px"
+			"border"      : "1px #FF6600 solid",
+			"background"  : "#F8F8F8",
+			"color"       : "#FF0000",
+			"padding"     : "10px",
+			"text-align"  : "justify",
+			"font-weight" : "400"
 		} )
 		.attr( "class", "roundedBy5Radius" );
 };
 
 AjaxForm.prototype.showErrorMessages = function( messages )
 {
-	if( this.errorMessagesPane == null )
+	if( this.messagePane == null )
 	{
 		throw new Error( "Error messages pane has not been specified." );
 	}
 
-	this.errorMessagesPane.html( "" );
-	this.errorMessagesPane.append( $( "<ul></ul>" ) );
+	this.messagePane.html( "" );
+	this.messagePane.append( $( "<ul></ul>" ) );
 
 	for( var i = 0; i < messages.length; i++ )
 	{
-		this.errorMessagesPane.children( "ul:first" ).append(
+		this.messagePane.children( "ul:first" ).append(
 			$( "<li></li>" )
 				.html( messages[i].message )
 		);
@@ -145,5 +156,27 @@ AjaxForm.prototype.setSuccessFunc = function( func )
 
 AjaxForm.prototype.setErrorMessagesPane = function( pane )
 {
-	this.errorMessagesPane = pane;
+	this.messagePane = pane;
+};
+
+AjaxForm.prototype.showSuccessMessage = function()
+{
+	this.readyMessagePaneForSuccessMessage();
+	this.messagePane.text( this.response.messages );
+};
+
+AjaxForm.prototype.readyMessagePaneForSuccessMessage = function()
+{
+	this.messagePane
+		.css( {
+			"border"      : "1px #3399cc solid",
+			"background"  : "#F8F8F8",
+			"color"       : "#3399cc",
+			"padding"     : "15px",
+			"font-size"   : "14px",
+			"text-align"  : "justify",
+			"font-weight" : "900"
+		} )
+		.attr( "class", "roundedBy5Radius" )
+		.html( "" );
 };
