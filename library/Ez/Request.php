@@ -114,6 +114,7 @@ class Request
 
 	/**
 	 * Tells whether the request is POST or not
+	 *
 	 * @return boolean
 	 * @author Mehdi Bakhtiari
 	 */
@@ -124,6 +125,7 @@ class Request
 
 	/**
 	 * Tells whether the request is a XMLHttpRequest or not
+	 *
 	 * @return boolean
 	 * @author Mehdi Bakhtiari
 	 */
@@ -230,7 +232,7 @@ class Request
 			{
 				foreach( $objProperties[ \Ez\Util\Reflection::PUBLIC_PROP ] as $property )
 				{
-					if( in_array( $property, $ignoreList ) )
+					if( in_array( $property, $ignoreList ) || !in_array( $property, $this->params ) )
 					{
 						continue;
 					}
@@ -243,7 +245,7 @@ class Request
 			{
 				foreach( $objProperties[ \Ez\Util\Reflection::NON_PUBLIC_PROP ] as $property )
 				{
-					if( in_array( $property, $ignoreList ) )
+					if( in_array( $property, $ignoreList ) || !in_array( $property, $this->params ) )
 					{
 						continue;
 					}
@@ -311,6 +313,7 @@ class Request
 
 	/**
 	 * Strips potential tags off any parameter in the request
+	 *
 	 * @return void
 	 * @author Mehdi Bakhtiari
 	 */
