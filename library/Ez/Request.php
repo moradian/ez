@@ -222,7 +222,20 @@ class Request
 			controllerClassName;
 	}
 
-	public function populateObj( &$obj, array $ignoreList = null )
+	/**
+	 * Populates properties of an entity object from the request object.
+	 *
+	 * @param object  $obj        This must be an entity object
+	 * @param array   $ignoreList List of parameter names to be ignored
+	 * @param boolean $strict     Determines whether to check for existence of the appropriate parameter for each
+	 *                            property of the entity object or not. If set to TRUE, an exception will be thrown
+	 *                            in case no parameter in the request object matches a property of the entity object.
+	 *
+	 * @throws \Exception
+	 * @return void
+	 * @author Mehdi Bakhtiari
+	 */
+	public function populateObj( &$obj, array $ignoreList = null, $strict = false )
 	{
 		if( is_object( $obj ) )
 		{
@@ -232,9 +245,14 @@ class Request
 			{
 				foreach( $objProperties[ \Ez\Util\Reflection::PUBLIC_PROP ] as $property )
 				{
-					if( in_array( $property, $ignoreList ) || !in_array( $property, $this->params ) )
+					if( in_array( $property, $ignoreList ) )
 					{
 						continue;
+					}
+
+					if( !in_array( $property, $this->paramsKeys ) && $strict === true )
+					{
+						throw new \Exception( "There is no matching parameter for {\"$property\"}" );
 					}
 
 					$obj->$property = $this->getParam( $property );
@@ -245,9 +263,14 @@ class Request
 			{
 				foreach( $objProperties[ \Ez\Util\Reflection::NON_PUBLIC_PROP ] as $property )
 				{
-					if( in_array( $property, $ignoreList ) || !in_array( $property, $this->params ) )
+					if( in_array( $property, $ignoreList ) )
 					{
 						continue;
+					}
+
+					if( !in_array( $property, $this->paramsKeys ) && $strict === true )
+					{
+						throw new \Exception( "There is no matching parameter for {\"$property\"}" );
 					}
 
 					$setterMethod = "set" . ucwords( $property );

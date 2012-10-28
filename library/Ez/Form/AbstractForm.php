@@ -92,9 +92,10 @@ abstract class AbstractForm
 	/**
 	 * Sets the name of the form.
 	 *
-	 * @author    Mehdi Bakhtiari
 	 * @param    string $name
+	 *
 	 * @return    \Ez\Form\AbstractForm
+	 * @author    Mehdi Bakhtiari
 	 */
 	public function setName( $name )
 	{
@@ -105,8 +106,8 @@ abstract class AbstractForm
 	/**
 	 * Returns the name of the form
 	 *
-	 * @author    Mehdi Bakhtiari
 	 * @return    string
+	 * @author    Mehdi Bakhtiari
 	 */
 	public function getName()
 	{
@@ -116,9 +117,10 @@ abstract class AbstractForm
 	/**
 	 * Sets the elements of the form
 	 *
-	 * @author    Mehdi Bakhtiari
 	 * @param    Element\Collection $elements
+	 *
 	 * @return    \Ez\Form\AbstractForm
+	 * @author    Mehdi Bakhtiari
 	 */
 	public function setElements( Element\Collection $elements )
 	{
@@ -130,8 +132,8 @@ abstract class AbstractForm
 	/**
 	 * Returns the elements of the form
 	 *
-	 * @author    Mehdi Bakhtiari
 	 * @return    \Ez\Form\Element\Collection
+	 * @author    Mehdi Bakhtiari
 	 */
 	public function getElements()
 	{
@@ -141,9 +143,10 @@ abstract class AbstractForm
 	/**
 	 * Returns an element of the form with the name of $name
 	 *
-	 * @author    Mehdi Bakhtiari
 	 * @param     string $name
+	 *
 	 * @return    \Ez\Form\Element\AbstractElement
+	 * @author    Mehdi Bakhtiari
 	 */
 	public function getElement( $name )
 	{
@@ -161,9 +164,10 @@ abstract class AbstractForm
 	/**
 	 * Sets the action of the form
 	 *
-	 * @author    Mehdi Bakhtiari
 	 * @param    string $action
+	 *
 	 * @return    \Ez\Form\AbstractForm
+	 * @author    Mehdi Bakhtiari
 	 */
 	public function setAction( $action )
 	{
@@ -174,8 +178,8 @@ abstract class AbstractForm
 	/**
 	 * Returns the action of the form
 	 *
-	 * @author    Mehdi Bakhtiari
 	 * @return    string
+	 * @author    Mehdi Bakhtiari
 	 */
 	public function getAction()
 	{
@@ -185,9 +189,10 @@ abstract class AbstractForm
 	/**
 	 * Sets the method of the form
 	 *
-	 * @author    Mehdi Bakhtiari
 	 * @param    string $method
+	 *
 	 * @return    \Ez\Form\AbstractForm
+	 * @author    Mehdi Bakhtiari
 	 */
 	public function setMethod( $method )
 	{
@@ -197,8 +202,8 @@ abstract class AbstractForm
 	/**
 	 * Returns the method of the form
 	 *
-	 * @author    Mehdi Bakhtiari
 	 * @return    string
+	 * @author    Mehdi Bakhtiari
 	 */
 	public function getMethod()
 	{
@@ -208,9 +213,10 @@ abstract class AbstractForm
 	/**
 	 * Makes the form submit its data by ajax or a simple HTTP request
 	 *
-	 * @author    Mehdi Bakhtiari
 	 * @param    boolean $isAjax
+	 *
 	 * @return    \Ez\Form\AbstractForm
+	 * @author    Mehdi Bakhtiari
 	 */
 	public function setIsAjax( $isAjax )
 	{
@@ -232,9 +238,10 @@ abstract class AbstractForm
 	/**
 	 * Sets the decorator to render the form with
 	 *
-	 * @author    Mehdi Bakhtiari
 	 * @param     \Ez\Form\Decorator\AbstractDecorator $decorator
+	 *
 	 * @return    \Ez\Form\AbstractForm
+	 * @author    Mehdi Bakhtiari
 	 */
 	public function setDecorator( Decorator\AbstractDecorator $decorator )
 	{
@@ -245,9 +252,10 @@ abstract class AbstractForm
 	/**
 	 * Populates the form with received data from the client..
 	 *
-	 * @author  Mehdi Bakhtiari
 	 * @param   \Ez\Request $request
+	 *
 	 * @return  \Ez\Form\AbstractForm
+	 * @author  Mehdi Bakhtiari
 	 */
 	public function populateByRequest( \Ez\Request $request )
 	{
@@ -268,8 +276,8 @@ abstract class AbstractForm
 	/**
 	 * Validates all elements of the form against their own validators
 	 *
-	 * @author    Mehdi Bakhtiari
 	 * @return    boolean
+	 * @author    Mehdi Bakhtiari
 	 */
 	public function isValid()
 	{
@@ -307,7 +315,6 @@ abstract class AbstractForm
 			}
 		}
 
-
 		foreach( $fineElementsCollection->getAll() as $item )
 		{
 			$this->fineFields[ ] = $this->getElementCssSelector( $item );
@@ -319,8 +326,8 @@ abstract class AbstractForm
 	/**
 	 * Returns the array of error messages generated after the validation
 	 *
-	 * @author    Mehdi Bakhtiari
 	 * @return    array
+	 * @author    Mehdi Bakhtiari
 	 */
 	public function getErrorMessages()
 	{
@@ -328,8 +335,8 @@ abstract class AbstractForm
 	}
 
 	/**
-	 * @author Mehdi Bakhtiari
 	 * @return array
+	 * @author Mehdi Bakhtiari
 	 */
 	public function getFieldMessages()
 	{
@@ -360,8 +367,8 @@ abstract class AbstractForm
 	/**
 	 * Returns the HTML ready markup of the form
 	 *
-	 * @author    Mehdi Bakhtiari
 	 * @return    string
+	 * @author    Mehdi Bakhtiari
 	 */
 	public function __toString()
 	{
@@ -384,7 +391,9 @@ abstract class AbstractForm
 
 	/**
 	 * @param Element\AbstractElement $element
+	 *
 	 * @return string
+	 * @author Mehdi Bakhtiari
 	 */
 	protected function getElementCssSelector( \Ez\Form\Element\AbstractElement $element )
 	{
