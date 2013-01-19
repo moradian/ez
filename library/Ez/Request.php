@@ -223,19 +223,12 @@ class Request
 	}
 
 	/**
-	 * Populates properties of an entity object from the request object.
+	 * @param object $obj
+	 * @param array  $ignoreList
 	 *
-	 * @param object  $obj        This must be an entity object
-	 * @param array   $ignoreList List of parameter names to be ignored
-	 * @param boolean $strict     Determines whether to check for existence of the appropriate parameter for each
-	 *                            property of the entity object or not. If set to TRUE, an exception will be thrown
-	 *                            in case no parameter in the request object matches a property of the entity object.
-	 *
-	 * @throws \Exception
 	 * @return void
-	 * @author Mehdi Bakhtiari
 	 */
-	public function populateObj( &$obj, array $ignoreList = null, $strict = false )
+	public function populateObj( &$obj, array $ignoreList = null )
 	{
 		if( is_object( $obj ) )
 		{
@@ -245,14 +238,9 @@ class Request
 			{
 				foreach( $objProperties[ \Ez\Util\Reflection::PUBLIC_PROP ] as $property )
 				{
-					if( in_array( $property, $ignoreList ) )
+					if( in_array( $property, $ignoreList ) || !in_array( $property, $this->params ) )
 					{
 						continue;
-					}
-
-					if( !in_array( $property, $this->paramsKeys ) && $strict === true )
-					{
-						throw new \Exception( "There is no matching parameter for {\"$property\"}" );
 					}
 
 					$obj->$property = $this->getParam( $property );
@@ -263,14 +251,9 @@ class Request
 			{
 				foreach( $objProperties[ \Ez\Util\Reflection::NON_PUBLIC_PROP ] as $property )
 				{
-					if( in_array( $property, $ignoreList ) )
+					if( in_array( $property, $ignoreList ) || !in_array( $property, array_keys( $this->params ) ) )
 					{
 						continue;
-					}
-
-					if( !in_array( $property, $this->paramsKeys ) && $strict === true )
-					{
-						throw new \Exception( "There is no matching parameter for {\"$property\"}" );
 					}
 
 					$setterMethod = "set" . ucwords( $property );
@@ -292,7 +275,7 @@ class Request
 
 		foreach( $controllerNameParts as &$item )
 		{
-			$item = ucwords( $item );
+			$item = $this->matchCaseDashedNames( ucwords( $item ) );
 		}
 
 		$this->controllerFileName = implode( "/", $controllerNameParts ) . ".php";
@@ -303,6 +286,26 @@ class Request
 		}
 
 		return $this;
+	}
+
+	/**
+	 * If the provided URI part is dashed separated, the dash character will be
+	 * used as a word separator to MatchCase the URI part.
+	 *
+	 * @param string $uriPart One single part of the URI delimited with forward slashes
+	 *
+	 * @return string
+	 */
+	private function matchCaseDashedNames( $uriPart )
+	{
+		$partParts = explode( "-", $uriPart );
+
+		foreach( $partParts as &$part )
+		{
+			$part = ucwords( $part );
+		}
+
+		return implode( "", $partParts );
 	}
 
 	/**
@@ -323,13 +326,8 @@ class Request
 		// WE ARE ASSUMING THAT $this->controllerFileName HAS BEEN GENERATED
 		// AND FILLED WITH PROPER VALUE BY INVOKING generatecontrollerFileName()
 
-		$this->controllerClassName = str_replace( "/",
-			"\\",
-			str_replace( ".php",
-				"",
-				$this->controllerFileName
-			)
-		) . "Controller";
+		$this->controllerClassName =
+			str_replace( "/", "\\", str_replace( ".php", "", $this->controllerFileName ) ) . "Controller";
 
 		return $this;
 	}
