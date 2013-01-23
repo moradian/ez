@@ -13,7 +13,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the LGPL. For more information, see
+ * and is licensed under the MIT license. For more information, see
  * <http://www.doctrine-project.org>.
  */
 
@@ -149,7 +149,8 @@ class ClassLoader
     /**
      * Loads the given class or interface.
      *
-     * @param string $classname The name of the class to load.
+     * @param string $className The name of the class to load.
+
      * @return boolean TRUE if the class has been successfully loaded, FALSE otherwise.
      */
     public function loadClass($className)
@@ -213,7 +214,7 @@ class ClassLoader
         if (class_exists($className, false) || interface_exists($className, false)) {
             return true;
         }
-        
+
         foreach (spl_autoload_functions() as $loader) {
             if (is_array($loader)) { // array(???, ???)
                 if (is_object($loader[0])) {
@@ -244,7 +245,7 @@ class ClassLoader
      * for (and is able to load) the class with the given name.
      *
      * @param string $className The name of the class.
-     * @return The <tt>ClassLoader</tt> for the class or NULL if no such <tt>ClassLoader</tt> exists.
+     * @return ClassLoader The <tt>ClassLoader</tt> for the class or NULL if no such <tt>ClassLoader</tt> exists.
      */
     public static function getClassLoader($className)
     {
