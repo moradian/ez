@@ -13,7 +13,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the LGPL. For more information, see
+ * and is licensed under the MIT license. For more information, see
  * <http://www.doctrine-project.org>.
  */
 
@@ -21,26 +21,32 @@ namespace Doctrine\ORM\Tools\Console;
 
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Helper\HelperSet;
+use Doctrine\ORM\Version;
 
 class ConsoleRunner
 {
     /**
-     * Run console with the given helperset.
+     * Runs console with the given helperset.
      *
-     * @param \Symfony\Component\Console\Helper\HelperSet $helperSet
+     * @param \Symfony\Component\Console\Helper\HelperSet  $helperSet
+     * @param \Symfony\Component\Console\Command\Command[] $commands
+     *
      * @return void
      */
-    static public function run(HelperSet $helperSet)
+    static public function run(HelperSet $helperSet, $commands = array())
     {
-        $cli = new Application('Doctrine Command Line Interface', \Doctrine\ORM\Version::VERSION);
+        $cli = new Application('Doctrine Command Line Interface', Version::VERSION);
         $cli->setCatchExceptions(true);
         $cli->setHelperSet($helperSet);
         self::addCommands($cli);
+        $cli->addCommands($commands);
         $cli->run();
     }
 
     /**
      * @param Application $cli
+     *
+     * @return void
      */
     static public function addCommands(Application $cli)
     {

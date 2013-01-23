@@ -1,7 +1,5 @@
 <?php
 /*
- *  $Id$
- *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -19,41 +17,43 @@
  * <http://www.doctrine-project.org>.
  */
 
-namespace Doctrine\ORM\Mapping\Driver;
-
-use Doctrine\ORM\Mapping\ClassMetadataInfo;
+namespace Doctrine\ORM\Query\AST;
 
 /**
- * Contract for metadata drivers.
+ * NewObjectExpression ::= "NEW" IdentificationVariable "(" NewObjectArg {"," NewObjectArg}* ")"
  *
- * @since 2.0
- * @author Jonathan H. Wage <jonwage@gmail.com>
- * @todo Rename: MetadataDriver or MappingDriver
+ * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
+ * @link    www.doctrine-project.org
+ * @since   2.3
+ * @author  Fabio B. Silva <fabio.bat.silva@gmail.com>
  */
-interface Driver
+class NewObjectExpression extends Node
 {
     /**
-     * Loads the metadata for the specified class into the provided container.
-     *
-     * @param string $className
-     * @param ClassMetadataInfo $metadata
+     * @var string
      */
-    function loadMetadataForClass($className, ClassMetadataInfo $metadata);
+    public $className;
 
     /**
-     * Gets the names of all mapped classes known to this driver.
-     *
-     * @return array The names of all mapped classes known to this driver.
+     * @var array
      */
-    function getAllClassNames();
+    public $args;
 
     /**
-     * Whether the class with the specified name should have its metadata loaded.
-     * This is only the case if it is either mapped as an Entity or a
-     * MappedSuperclass.
-     *
      * @param string $className
-     * @return boolean
+     * @param array  $args
      */
-    function isTransient($className);
+    public function __construct($className, array $args)
+    {
+        $this->className = $className;
+        $this->args      = $args;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function dispatch($sqlWalker)
+    {
+        return $sqlWalker->walkNewObject($this);
+    }
 }

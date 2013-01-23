@@ -13,16 +13,15 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the LGPL. For more information, see
+ * and is licensed under the MIT license. For more information, see
  * <http://www.doctrine-project.org>.
  */
 
 namespace Doctrine\ORM\Proxy;
 
-use Doctrine\ORM\EntityManager,
-    Doctrine\ORM\Mapping\ClassMetadata,
-    Doctrine\ORM\Mapping\AssociationMapping,
-    Doctrine\Common\Util\ClassUtils;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Mapping\ClassMetadata;
+use Doctrine\Common\Util\ClassUtils;
 
 /**
  * This factory is used to create proxy objects for entities at runtime.
@@ -33,13 +32,32 @@ use Doctrine\ORM\EntityManager,
  */
 class ProxyFactory
 {
-    /** The EntityManager this factory is bound to. */
+    /**
+     * The EntityManager this factory is bound to.
+     *
+     * @var \Doctrine\ORM\EntityManager
+     */
     private $_em;
-    /** Whether to automatically (re)generate proxy classes. */
+
+    /**
+     * Whether to automatically (re)generate proxy classes.
+     *
+     * @var bool
+     */
     private $_autoGenerate;
-    /** The namespace that contains all proxy classes. */
+
+    /**
+     * The namespace that contains all proxy classes.
+     *
+     * @var string
+     */
     private $_proxyNamespace;
-    /** The directory that contains all proxy classes. */
+
+    /**
+     * The directory that contains all proxy classes.
+     *
+     * @var string
+     */
     private $_proxyDir;
 
     /**
@@ -54,10 +72,12 @@ class ProxyFactory
      * Initializes a new instance of the <tt>ProxyFactory</tt> class that is
      * connected to the given <tt>EntityManager</tt>.
      *
-     * @param EntityManager $em The EntityManager the new factory works for.
-     * @param string $proxyDir The directory to use for the proxy classes. It must exist.
-     * @param string $proxyNs The namespace to use for the proxy classes.
-     * @param boolean $autoGenerate Whether to automatically generate proxy classes.
+     * @param EntityManager $em           The EntityManager the new factory works for.
+     * @param string        $proxyDir     The directory to use for the proxy classes. It must exist.
+     * @param string        $proxyNs      The namespace to use for the proxy classes.
+     * @param boolean       $autoGenerate Whether to automatically generate proxy classes.
+     *
+     * @throws ProxyException
      */
     public function __construct(EntityManager $em, $proxyDir, $proxyNs, $autoGenerate = false)
     {
@@ -78,7 +98,8 @@ class ProxyFactory
      * the given identifier.
      *
      * @param string $className
-     * @param mixed $identifier
+     * @param mixed  $identifier
+     *
      * @return object
      */
     public function getProxy($className, $identifier)
@@ -93,57 +114,70 @@ class ProxyFactory
             require $fileName;
         }
 
-        if ( ! $this->_em->getMetadataFactory()->hasMetadataFor($fqn)) {
-            $this->_em->getMetadataFactory()->setMetadataFor($fqn, $this->_em->getClassMetadata($className));
-        }
-
         $entityPersister = $this->_em->getUnitOfWork()->getEntityPersister($className);
 
         return new $fqn($entityPersister, $identifier);
     }
 
     /**
-     * Generate the Proxy file name
+     * Generates the Proxy file name.
      *
-     * @param string $className
+     * @param string      $className
+     * @param string|null $baseDir   Optional base directory for proxy file name generation.
+     *                               If not specified, the directory configured on the Configuration of the
+     *                               EntityManager will be used by this factory.
      * @return string
      */
-    private function getProxyFileName($className)
+    private function getProxyFileName($className, $baseDir = null)
     {
-        return $this->_proxyDir . DIRECTORY_SEPARATOR . '__CG__' . str_replace('\\', '', $className) . '.php';
+        $proxyDir = $baseDir ?: $this->_proxyDir;
+
+        return $proxyDir . DIRECTORY_SEPARATOR . '__CG__' . str_replace('\\', '', $className) . '.php';
     }
 
     /**
      * Generates proxy classes for all given classes.
      *
-     * @param array $classes The classes (ClassMetadata instances) for which to generate proxies.
-     * @param string $toDir The target directory of the proxy classes. If not specified, the
-     *                      directory configured on the Configuration of the EntityManager used
-     *                      by this factory is used.
+     * @param array       $classes The classes (ClassMetadata instances) for which to generate proxies.
+     * @param string|null $toDir   The target directory of the proxy classes. If not specified, the
+     *                             directory configured on the Configuration of the EntityManager used
+     *                             by this factory is used.
+     *
+     * @return int Number of generated proxies.
      */
     public function generateProxyClasses(array $classes, $toDir = null)
     {
         $proxyDir = $toDir ?: $this->_proxyDir;
-        $proxyDir = rtrim($proxyDir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+        $proxyDir = rtrim($proxyDir, DIRECTORY_SEPARATOR);
+        $num = 0;
+
         foreach ($classes as $class) {
             /* @var $class ClassMetadata */
-            if ($class->isMappedSuperclass) {
+            if ($class->isMappedSuperclass || $class->reflClass->isAbstract()) {
                 continue;
             }
 
-            $proxyFileName = $this->getProxyFileName($class->name);
+            $proxyFileName = $this->getProxyFileName($class->name, $proxyDir);
+
             $this->_generateProxyClass($class, $proxyFileName, self::$_proxyClassTemplate);
+            $num++;
         }
+
+        return $num;
     }
 
     /**
      * Generates a proxy class file.
      *
-     * @param $class
-     * @param $proxyClassName
-     * @param $file The path of the file to write to.
+     * @param ClassMetadata $class    Metadata for the original class.
+     * @param string        $fileName Filename (full path) for the generated class.
+     * @param string        $file     The proxy class template data.
+     *
+     * @return void
+     *
+     * @throws ProxyException
      */
-    private function _generateProxyClass($class, $fileName, $file)
+    private function _generateProxyClass(ClassMetadata $class, $fileName, $file)
     {
         $methods = $this->_generateMethods($class);
         $sleepImpl = $this->_generateSleep($class);
@@ -172,13 +206,26 @@ class ProxyFactory
 
         $file = str_replace($placeholders, $replacements, $file);
 
-        file_put_contents($fileName, $file, LOCK_EX);
+        $parentDirectory = dirname($fileName);
+
+        if ( ! is_dir($parentDirectory)) {
+            if (false === @mkdir($parentDirectory, 0775, true)) {
+                throw ProxyException::proxyDirectoryNotWritable();
+            }
+        } else if ( ! is_writable($parentDirectory)) {
+            throw ProxyException::proxyDirectoryNotWritable();
+        }
+
+        $tmpFileName = $fileName . '.' . uniqid("", true);
+        file_put_contents($tmpFileName, $file);
+        rename($tmpFileName, $fileName);
     }
 
     /**
      * Generates the methods of a proxy class.
      *
      * @param ClassMetadata $class
+     *
      * @return string The code of the generated methods.
      */
     private function _generateMethods(ClassMetadata $class)
@@ -187,7 +234,7 @@ class ProxyFactory
 
         $methodNames = array();
         foreach ($class->reflClass->getMethods() as $method) {
-            /* @var $method ReflectionMethod */
+            /* @var $method \ReflectionMethod */
             if ($method->isConstructor() || in_array(strtolower($method->getName()), array("__sleep", "__clone")) || isset($methodNames[$method->getName()])) {
                 continue;
             }
@@ -250,7 +297,7 @@ class ProxyFactory
     }
 
     /**
-     * Check if the method is a short identifier getter.
+     * Checks if the method is a short identifier getter.
      *
      * What does this mean? For proxy objects the identifier is already known,
      * however accessing the getter for this identifier usually triggers the
@@ -258,11 +305,12 @@ class ProxyFactory
      * ID is interesting for the userland code (for example in views that
      * generate links to the entity, but do not display anything else).
      *
-     * @param ReflectionMethod $method
-     * @param ClassMetadata $class
+     * @param \ReflectionMethod $method
+     * @param ClassMetadata     $class
+     *
      * @return bool
      */
-    private function isShortIdentifierGetter($method, $class)
+    private function isShortIdentifierGetter($method, ClassMetadata $class)
     {
         $identifier = lcfirst(substr($method->getName(), 3));
         $cheapCheck = (
@@ -275,7 +323,7 @@ class ProxyFactory
         );
 
         if ($cheapCheck) {
-            $code = file($class->reflClass->getFileName());
+            $code = file($method->getDeclaringClass()->getFileName());
             $code = trim(implode(" ", array_slice($code, $method->getStartLine() - 1, $method->getEndLine() - $method->getStartLine() + 1)));
 
             $pattern = sprintf(self::PATTERN_MATCH_ID_METHOD, $method->getName(), $identifier);
@@ -290,7 +338,8 @@ class ProxyFactory
     /**
      * Generates the code for the __sleep method for a proxy class.
      *
-     * @param $class
+     * @param ClassMetadata $class
+     *
      * @return string
      */
     private function _generateSleep(ClassMetadata $class)
@@ -380,7 +429,7 @@ class <proxyClassName> extends \<className> implements \Doctrine\ORM\Proxy\Proxy
             if ($original === null) {
                 throw new \Doctrine\ORM\EntityNotFoundException();
             }
-            foreach ($class->reflFields AS $field => $reflProperty) {
+            foreach ($class->reflFields as $field => $reflProperty) {
                 $reflProperty->setValue($this, $reflProperty->getValue($original));
             }
             unset($this->_entityPersister, $this->_identifier);

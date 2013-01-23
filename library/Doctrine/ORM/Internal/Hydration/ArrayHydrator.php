@@ -13,13 +13,14 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the LGPL. For more information, see
+ * and is licensed under the MIT license. For more information, see
  * <http://www.doctrine-project.org>.
  */
 
 namespace Doctrine\ORM\Internal\Hydration;
 
-use PDO, Doctrine\DBAL\Connection, Doctrine\ORM\Mapping\ClassMetadata;
+use PDO;
+use Doctrine\ORM\Mapping\ClassMetadata;
 
 /**
  * The ArrayHydrator produces a nested array "graph" that is often (not always)
@@ -31,12 +32,39 @@ use PDO, Doctrine\DBAL\Connection, Doctrine\ORM\Mapping\ClassMetadata;
  */
 class ArrayHydrator extends AbstractHydrator
 {
+    /**
+     * @var array
+     */
     private $_ce = array();
+
+    /**
+     * @var array
+     */
     private $_rootAliases = array();
+
+    /**
+     * @var bool
+     */
     private $_isSimpleQuery = false;
+
+    /**
+     * @var array
+     */
     private $_identifierMap = array();
+
+    /**
+     * @var array
+     */
     private $_resultPointers = array();
+
+    /**
+     * @var array
+     */
     private $_idTemplate = array();
+
+    /**
+     * @var int
+     */
     private $_resultCounter = 0;
 
     /**
@@ -111,7 +139,7 @@ class ArrayHydrator extends AbstractHydrator
                 // Get a reference to the right element in the result tree.
                 // This element will get the associated element attached.
                 if ($this->_rsm->isMixed && isset($this->_rootAliases[$parent])) {
-                	$first = reset($this->_resultPointers);
+                    $first = reset($this->_resultPointers);
                     // TODO: Exception if $key === null ?
                     $baseElement =& $this->_resultPointers[$parent][key($first)];
                 } else if (isset($this->_resultPointers[$parent])) {
@@ -236,10 +264,12 @@ class ArrayHydrator extends AbstractHydrator
      * Updates the result pointer for an Entity. The result pointers point to the
      * last seen instance of each Entity type. This is used for graph construction.
      *
-     * @param array $coll  The element.
-     * @param boolean|integer $index  Index of the element in the collection.
-     * @param string $dqlAlias
-     * @param boolean $oneToOne  Whether it is a single-valued association or not.
+     * @param array           $coll     The element.
+     * @param boolean|integer $index    Index of the element in the collection.
+     * @param string          $dqlAlias
+     * @param boolean         $oneToOne Whether it is a single-valued association or not.
+     *
+     * @return void
      */
     private function updateResultPointer(array &$coll, $index, $dqlAlias, $oneToOne)
     {
