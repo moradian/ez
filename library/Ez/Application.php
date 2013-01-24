@@ -150,50 +150,6 @@ class Application extends Application\AbstractApplication
 		\Ez\Registry::setDoctrineEntityManager( $entityManager );
 	}
 
-	/**
-	 * This method is supposed to be called from templates to include the appropriate
-	 * javascript file of the controller
-	 *
-	 * @author  Mehdi Bakhtiari
-	 * @static
-	 * @return null|string
-	 */
-	public static function getControllerJsFileName()
-	{
-		$controllerName = rtrim( Request::getInstance()->getControllerFileName(), ".php" );
-		$controllerName = strtolower( ltrim( $controllerName, "/" ) );
-		$controllerName = str_replace( "/", ".", $controllerName ) . ".js";
-
-		if( file_exists( PUBLIC_PATH . "scripts/controller/{$controllerName}" ) )
-		{
-			return "/scripts/controller/{$controllerName}";
-		}
-
-		return null;
-	}
-
-	/**
-	 * This method is supposed to be called from templates to include the appropriate
-	 * css file of the controller
-	 *
-	 * @author  Mehdi Bakhtiari
-	 * @static
-	 * @return null|string
-	 */
-	public static function getControllerCssFileName()
-	{
-		$controllerName = rtrim( Request::getInstance()->getControllerFileName(), ".php" );
-		$controllerName = strtolower( ltrim( $controllerName, "/" ) );
-		$controllerName = str_replace( "/", ".", $controllerName ) . ".css";
-
-		if( file_exists( PUBLIC_PATH . "styles/controller/{$controllerName}" ) )
-		{
-			return "/styles/controller/{$controllerName}";
-		}
-
-		return null;
-	}
-
 	public static function redirectToHome()
 	{
 		header( "Location: /" );

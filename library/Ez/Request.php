@@ -75,6 +75,21 @@ class Request
 	private $queryString;
 
 	/**
+	 * @var string
+	 */
+	private $controllerDottedName;
+
+	/**
+	 * @var string
+	 */
+	private static $controllerJsFile = "scripts/controller/";
+
+	/**
+	 * @var string
+	 */
+	private static $controllerCssFile = "styles/controller/";
+
+	/**
 	 * @var \Ez\Request
 	 */
 	private static $instance;
@@ -309,11 +324,60 @@ class Request
 	}
 
 	/**
+	 * This method is supposed to be called from templates to
+	 * include the appropriate javascript file of the controller
+	 *
+	 * @return null|string
+	 */
+	public function getControllerJsFileName()
+	{
+		$file = $this->getControllerDottedName() . ".js";
+
+		if( file_exists( PUBLIC_PATH . self::$controllerJsFile . $file ) )
+		{
+			return "/" . self::$controllerJsFile . $file;
+		}
+
+		return null;
+	}
+
+	/**
+	 * This method is supposed to be called from templates to
+	 * include the appropriate css file of the controller
+	 *
+	 * @return null|string
+	 */
+	public function getControllerCssFileName()
+	{
+		$file = $this->getControllerDottedName() . ".css";
+
+		if( file_exists( PUBLIC_PATH . "styles/controller/{$file}" ) )
+		{
+			return "/styles/controller/{$file}";
+		}
+
+		return null;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getControllerDottedName()
+	{
+		if( empty( $this->controllerDottedName ) )
+		{
+			$this->controllerDottedName = strtolower( ltrim( rtrim( $this->getControllerFileName(), ".php" ), "/" ) );
+			$this->controllerDottedName = str_replace( "/", ".", $this->controllerDottedName );
+		}
+
+		return $this->controllerDottedName;
+	}
+
+	/**
 	 * Generates  the class name of the responsible controller
 	 * to serve to the request
 	 *
-	 * @author    Mehdi Bakhtiari
-	 * @return    \Ez\Request
+	 * @return \Ez\Request
 	 */
 	private function generateControllerClassName()
 	{
@@ -336,7 +400,6 @@ class Request
 	 * Strips potential tags off any parameter in the request
 	 *
 	 * @return void
-	 * @author Mehdi Bakhtiari
 	 */
 	private function stripTagsOffUserInput()
 	{
