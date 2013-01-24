@@ -181,7 +181,7 @@ AjaxForm.prototype.readyMessagePaneForSuccessMessage = function ()
 			"border"     :"1px #3399cc solid",
 			"background" :"#F8F8F8",
 			"color"      :"#3399cc",
-			"padding"    :"15px",
+			"padding"    :"5px",
 			"font-size"  :"14px",
 			"text-align" :"justify",
 			"font-weight":"900"
