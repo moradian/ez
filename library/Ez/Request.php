@@ -55,6 +55,16 @@ class Request
 	private $postKeys;
 
 	/**
+	 * @var array
+	 */
+	private $files;
+
+	/**
+	 * @var array
+	 */
+	private $filesKeys;
+
+	/**
 	 * @var string
 	 */
 	private $controllerClassName;
@@ -119,6 +129,9 @@ class Request
 			->generateControllerFileName()
 			->generateControllerClassName();
 
+		$this->files     = $_FILES;
+		$this->filesKeys = array_keys( $_FILES );
+
 		$this->query      = $_GET;
 		$this->queryKeys  = array_keys( $_GET );
 		$this->post       = $_POST;
@@ -131,7 +144,6 @@ class Request
 	 * Tells whether the request is POST or not
 	 *
 	 * @return boolean
-	 * @author Mehdi Bakhtiari
 	 */
 	public function isPost()
 	{
@@ -142,7 +154,6 @@ class Request
 	 * Tells whether the request is a XMLHttpRequest or not
 	 *
 	 * @return boolean
-	 * @author Mehdi Bakhtiari
 	 */
 	public static function isAjax()
 	{
@@ -164,60 +175,53 @@ class Request
 	 * @param string $default    The value to return if no matching parameter is found
 	 *
 	 * @return string
-	 * @author Mehdi Bakhtiari
 	 */
 	public function getQuery( $key, $default = null )
 	{
-		if( in_array( $key, $this->queryKeys ) )
-		{
-			return $this->query[ $key ];
-		}
-
-		return $default;
+		return $this->getInput( $key, $this->queryKeys, $this->query, $default );
 	}
 
 	/**
 	 * Returns the value for the $key parameter in the POST parameters
 	 *
 	 * @param string $key        POST parameter name
-	 * @param string $default    The value to return if no matching parameter is found
+	 * @param object $default    The value to return if no matching parameter is found
 	 *
 	 * @return string
-	 * @author Mehdi Bakhtiari
 	 */
 	public function getPost( $key, $default = null )
 	{
-		if( in_array( $key, $this->postKeys ) )
-		{
-			return $this->post[ $key ];
-		}
+		return $this->getInput( $key, $this->postKeys, $this->post, $default );
+	}
 
-		return $default;
+	/**
+	 * @param string $key
+	 * @param object $default
+	 *
+	 * @return mixed
+	 */
+	public function getFile( $key, $default = null )
+	{
+		$file = $this->getInput( $key, $this->filesKeys, $this->files, $default );
+		return ( strlen( $file[ "name" ] ) === 0 || $file[ "size" ] === 0 ) ? $default : $file;
 	}
 
 	/**
 	 * Returns the value for the $key parameter in the query string or either POST
 	 *
 	 * @param string $key        Parameter name
-	 * @param string $default    The value to return if no matching parameter is found
+	 * @param object $default    The value to return if no matching parameter is found
 	 *
 	 * @return string
-	 * @author Mehdi Bakhtiari
 	 */
 	public function getParam( $key, $default = null )
 	{
-		if( in_array( $key, $this->paramsKeys ) )
-		{
-			return $this->params[ $key ];
-		}
-
-		return $default;
+		return $this->getInput( $key, $this->paramsKeys, $this->params, $default );
 	}
 
 	/**
 	 * Returns filename of the responsible controller to handle the request
 	 *
-	 * @author    Mehdi Bakhtiari
 	 * @return    string
 	 */
 	public function getControllerFileName()
@@ -228,7 +232,6 @@ class Request
 	/**
 	 * Returns name of the class of the responsible controller to handle the request.
 	 *
-	 * @author    Mehdi Bakhtiari
 	 * @return    string
 	 */
 	public function getControllerClassName()
@@ -279,48 +282,14 @@ class Request
 	}
 
 	/**
-	 * Generates the filename of the responsible controller to serve the request
+	 * Redirects the user to / which is the root (homepage) of the web application
 	 *
-	 * @author    Mehdi Bakhtiari
-	 * @return    \Ez\Request
+	 * @return void
 	 */
-	private function generateControllerFileName()
+	public function redirectToHome()
 	{
-		$controllerNameParts = explode( "/", trim( $this->requestUri, "/" ) );
-
-		foreach( $controllerNameParts as &$item )
-		{
-			$item = $this->matchCaseDashedNames( ucwords( $item ) );
-		}
-
-		$this->controllerFileName = implode( "/", $controllerNameParts ) . ".php";
-
-		if( $this->controllerFileName === ".php" )
-		{
-			$this->controllerFileName = "Home/Index.php";
-		}
-
-		return $this;
-	}
-
-	/**
-	 * If the provided URI part is dashed separated, the dash character will be
-	 * used as a word separator to MatchCase the URI part.
-	 *
-	 * @param string $uriPart One single part of the URI delimited with forward slashes
-	 *
-	 * @return string
-	 */
-	private function matchCaseDashedNames( $uriPart )
-	{
-		$partParts = explode( "-", $uriPart );
-
-		foreach( $partParts as &$part )
-		{
-			$part = ucwords( $part );
-		}
-
-		return implode( "", $partParts );
+		header( "Location: /" );
+		exit;
 	}
 
 	/**
@@ -371,6 +340,69 @@ class Request
 		}
 
 		return $this->controllerDottedName;
+	}
+
+	/**
+	 * @param string $key
+	 * @param array  $keysArray
+	 * @param array  $array
+	 * @param        $default
+	 *
+	 * @return mixed
+	 */
+	private function getInput( $key, array $keysArray, array $array, $default )
+	{
+		return in_array( $key, $keysArray ) ? $array[ $key ] : $default;
+	}
+
+	/**
+	 * Generates the filename of the responsible controller to serve the request
+	 *
+	 * @return    \Ez\Request
+	 */
+	private function generateControllerFileName()
+	{
+		$controllerNameParts      = explode( "/", trim( $this->requestUri, "/" ) );
+		$this->controllerFileName = "";
+
+		foreach( $controllerNameParts as &$item )
+		{
+			if( empty( $item ) )
+			{
+				continue;
+			}
+
+			$this->controllerFileName .= "/" . $this->matchCaseDashedNames( ucwords( $item ) );
+		}
+
+		$this->controllerFileName = trim( $this->controllerFileName, "/" ) . ".php";
+
+		if( $this->controllerFileName === ".php" )
+		{
+			$this->controllerFileName = "Home/Index.php";
+		}
+
+		return $this;
+	}
+
+	/**
+	 * If the provided URI part is dashed separated, the dash character will be
+	 * used as a word separator to MatchCase the URI part.
+	 *
+	 * @param string $uriPart One single part of the URI delimited with forward slashes
+	 *
+	 * @return string
+	 */
+	private function matchCaseDashedNames( $uriPart )
+	{
+		$partParts = explode( "-", $uriPart );
+
+		foreach( $partParts as &$part )
+		{
+			$part = ucwords( $part );
+		}
+
+		return implode( "", $partParts );
 	}
 
 	/**
