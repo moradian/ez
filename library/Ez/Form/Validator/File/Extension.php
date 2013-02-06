@@ -1,7 +1,7 @@
 <?php
 /*
  * Copyright 2011 Mehdi Bakhtiari
- * 
+ *
  * THIS SOFTWARE IS A FREE SOFTWARE AND IS PROVIDED BY THE COPYRIGHT HOLDERS
  * AND CONTRIBUTORS "AS IS".YOU CAN USE, MODIFY OR REDISTRIBUTE IT UNDER THE
  * TERMS OF "GNU LESSER	GENERAL PUBLIC LICENSE" VERSION 3. YOU SHOULD HAVE
@@ -15,61 +15,62 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  * THIS SOFTWARE IS LICENSED UNDER THE "GNU LESSER PUBLIC LICENSE" VERSION 3.
  * FOR MORE INFORMATION PLEASE REFER TO <http://www.ez-project.org>
  */
 
-namespace Ez\Form\Element;
+namespace Ez\Form\Validator\File;
 
-class Select extends AbstractElement
+class Extension extends \Ez\Form\Validator\AbstractValidator
 {
 	/**
-	 * @var \Ez\Form\Element\SelectOptionCollection
+	 * @var array
 	 */
-	private $options;
-	
-	public function __construct()
-	{
-		parent::__construct();
-	}
-	
+	private $extensions;
+
 	/**
-	 * Sets options of the select box
-	 * 
-	 * @author	Mehdi Bakhtiari
-	 * @param	\Ez\Form\Element\OptionCollection $options
-	 * @return	\Ez\Form\Element\Select
+	 * @param array $extensions
+	 * @throws \Exception
+	 * @return \Ez\Form\Validator\File\Extension
 	 */
-	public function setOptions( OptionCollection $options )
+	public function __construct( array $extensions )
 	{
-		$this->options = $options;
-		return $this;
-	}
-	
-	/**
-	 * Returns options of the select box
-	 * 
-	 * @author	Mehdi Bakhtiari
-	 * @return	\Ez\Form\Element\OptionCollection
-	 */
-	public function getOptions()
-	{
-		return $this->options;
-	}
-	
-	public function __toString()
-	{
-		$output =	"<select name=\"{$this->name}\" id=\"{$this->id}\""
-		.			( strlen( $this->style ) ? " style=\"{$this->style}\"" : "" )
-		.			( strlen( $this->class ) ? " class=\"{$this->class}\">" : ">" );
-		
-		foreach( $this->options->getAll() as $option )
+		if( count( $extensions ) === 0 )
 		{
-			$output .=	"<option value=\"{$option->getValue()}\""
-			.			( $this->value === $option->getValue() ? " selected=\"selected\">" : ">" ) . "{$option->getText()}</option>";
+			throw new \Exception( "It is required to provided a list of valid extensions." );
 		}
-		
-		return $output .= "</option>";
+
+		$this->extensions = $extensions;
+	}
+
+	/**
+	 * Validates the element.
+	 *
+	 * @param string $value
+	 * @return boolean
+	 */
+	public function isValid( $value )
+	{
+		$ext = explode( ".", $value[ "name" ] );
+		$ext = strtoupper( $ext[ count( $ext ) - 1 ] );
+
+		return in_array( $ext, $this->extensions );
+	}
+
+	/**
+	 * Returns a generated error message for an element
+	 *
+	 * @param \Ez\Form\Element\AbstractElement $element
+	 * @return string
+	 */
+	public function getErrorMessage( \Ez\Form\Element\AbstractElement $element )
+	{
+		return sprintf(
+			$this->errorMessagePattern,
+			"The provided file for",
+			$element->getLabel(),
+			"does not have a valid extension."
+		);
 	}
 }

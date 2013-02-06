@@ -31,8 +31,7 @@ abstract class AbstractValidator
 	/**
 	 * Validates the element.
 	 * 
-	 * @author	Mehdi Bakhtiari
-	 * @param 	string $value
+	 * @param 	mixed $value
 	 * @return	boolean
 	 */
 	abstract public function isValid( $value );
@@ -40,7 +39,6 @@ abstract class AbstractValidator
 	/**
 	 * Returns a generated error message for an element
 	 * 
-	 * @author	Mehdi Bakhtiari
 	 * @param 	\Ez\Form\Element\AbstractElement $element
 	 * @return	string
 	 */

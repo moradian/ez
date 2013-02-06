@@ -56,7 +56,7 @@ abstract class AbstractElement
 	
 	/**
 	 * Value of the element
-	 * @var string
+	 * @var mixed
 	 */
 	protected $value;
 	
@@ -69,6 +69,11 @@ abstract class AbstractElement
 	 * @var \Ez\Form\Decorator\AbstractDecorator
 	 */
 	protected $decorator;
+
+	public function __construct()
+	{
+		$this->validators = new \Ez\Form\Validator\Collection();
+	}
 	
 	/**
 	 * Enforcing all elements to declare their own toString()
@@ -176,7 +181,7 @@ abstract class AbstractElement
 	 * Sets the value attribute of the element
 	 * 
 	 * @author	Mehdi Bakhtiari
-	 * @param	string $value
+	 * @param	mixed $value
 	 * @return	\Ez\Form\Element\AbstractElement
 	 */
 	public function setValue( $value )
@@ -189,7 +194,7 @@ abstract class AbstractElement
 	 * Returns the value of the element
 	 * 
 	 * @author	Mehdi Bakhtiari
-	 * @return	string
+	 * @return	mixed
 	 */
 	public function getValue()
 	{

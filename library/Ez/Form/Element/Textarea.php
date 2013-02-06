@@ -26,7 +26,7 @@ class Textarea extends AbstractElement
 {
 	public function __construct()
 	{
-		$this->validators = new \Ez\Form\Validator\Collection();
+		parent::__construct();
 	}
 	
 	public function __toString()

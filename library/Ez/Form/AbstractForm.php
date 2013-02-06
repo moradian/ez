@@ -261,13 +261,21 @@ abstract class AbstractForm
 	{
 		foreach( $this->elements->getAll() as $element )
 		{
-			if( $this->getMethod() == self::POST_METHOD )
+			if( $element instanceof \Ez\Form\Element\File )
 			{
-				$element->setValue( $request->getPost( $element->getName() ) );
-				continue;
+				$element->setValue( $request->getFile( $element->getName() ) );
 			}
-
-			$element->setValue( $request->getQuery( $element->getName() ) );
+			else
+			{
+				if( $this->getMethod() == self::POST_METHOD )
+				{
+					$element->setValue( $request->getPost( $element->getName() ) );
+				}
+				elseif( $this->getMethod() == self::GET_METHOD )
+				{
+					$element->setValue( $request->getQuery( $element->getName() ) );
+				}
+			}
 		}
 
 		return $this;
@@ -402,6 +410,7 @@ abstract class AbstractForm
 		switch( get_class( $element ) )
 		{
 			case "Ez\Form\Element\Text":
+			case "Ez\Form\Element\File":
 			case "Ez\Form\Element\Password":
 			case "Ez\Form\Element\Button":
 			case "Ez\Form\Element\Radio":

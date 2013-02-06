@@ -1,7 +1,7 @@
 <?php
 /*
  * Copyright 2011 Mehdi Bakhtiari
- * 
+ *
  * THIS SOFTWARE IS A FREE SOFTWARE AND IS PROVIDED BY THE COPYRIGHT HOLDERS
  * AND CONTRIBUTORS "AS IS".YOU CAN USE, MODIFY OR REDISTRIBUTE IT UNDER THE
  * TERMS OF "GNU LESSER	GENERAL PUBLIC LICENSE" VERSION 3. YOU SHOULD HAVE
@@ -15,61 +15,59 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  * THIS SOFTWARE IS LICENSED UNDER THE "GNU LESSER PUBLIC LICENSE" VERSION 3.
  * FOR MORE INFORMATION PLEASE REFER TO <http://www.ez-project.org>
  */
 
-namespace Ez\Form\Element;
+namespace Ez\Form\Validator\File;
 
-class Select extends AbstractElement
+class MaxSize extends \Ez\Form\Validator\AbstractValidator
 {
 	/**
-	 * @var \Ez\Form\Element\SelectOptionCollection
+	 * @var integer
 	 */
-	private $options;
-	
-	public function __construct()
-	{
-		parent::__construct();
-	}
-	
+	private $maxSize;
+
 	/**
-	 * Sets options of the select box
-	 * 
-	 * @author	Mehdi Bakhtiari
-	 * @param	\Ez\Form\Element\OptionCollection $options
-	 * @return	\Ez\Form\Element\Select
+	 * @param int $maxSize
+	 * @throws \Exception
 	 */
-	public function setOptions( OptionCollection $options )
+	public function __construct( $maxSize )
 	{
-		$this->options = $options;
-		return $this;
-	}
-	
-	/**
-	 * Returns options of the select box
-	 * 
-	 * @author	Mehdi Bakhtiari
-	 * @return	\Ez\Form\Element\OptionCollection
-	 */
-	public function getOptions()
-	{
-		return $this->options;
-	}
-	
-	public function __toString()
-	{
-		$output =	"<select name=\"{$this->name}\" id=\"{$this->id}\""
-		.			( strlen( $this->style ) ? " style=\"{$this->style}\"" : "" )
-		.			( strlen( $this->class ) ? " class=\"{$this->class}\">" : ">" );
-		
-		foreach( $this->options->getAll() as $option )
+		if( is_numeric( $maxSize ) )
 		{
-			$output .=	"<option value=\"{$option->getValue()}\""
-			.			( $this->value === $option->getValue() ? " selected=\"selected\">" : ">" ) . "{$option->getText()}</option>";
+			throw new \Exception( "Provided size must be a numeric value." );
 		}
-		
-		return $output .= "</option>";
+
+		$this->maxSize = $maxSize;
+	}
+
+	/**
+	 * Validates the element.
+	 *
+	 * @param     string $value
+	 * @return    boolean
+	 */
+	public function isValid( $value )
+	{
+		return $value[ "size" ] <= $this->maxSize;
+	}
+
+	/**
+	 * Returns a generated error message for an element
+	 *
+	 * @param     \Ez\Form\Element\AbstractElement $element
+	 * @return    string
+	 */
+	public function getErrorMessage( \Ez\Form\Element\AbstractElement $element )
+	{
+		// Todo: Generate an appropriate message
+		return sprintf(
+			$this->errorMessagePattern,
+			"BIG FILE",
+			$element->getLabel(),
+			""
+		);
 	}
 }

@@ -1,7 +1,7 @@
 <?php
 /*
  * Copyright 2011 Mehdi Bakhtiari
- * 
+ *
  * THIS SOFTWARE IS A FREE SOFTWARE AND IS PROVIDED BY THE COPYRIGHT HOLDERS
  * AND CONTRIBUTORS "AS IS".YOU CAN USE, MODIFY OR REDISTRIBUTE IT UNDER THE
  * TERMS OF "GNU LESSER	GENERAL PUBLIC LICENSE" VERSION 3. YOU SHOULD HAVE
@@ -15,71 +15,28 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  * THIS SOFTWARE IS LICENSED UNDER THE "GNU LESSER PUBLIC LICENSE" VERSION 3.
  * FOR MORE INFORMATION PLEASE REFER TO <http://www.ez-project.org>
  */
 
 namespace Ez\Form\Element;
 
-class Checkbox extends AbstractElement
+class File extends \Ez\Form\Element\AbstractElement
 {
-	/**
-	 * @var \Ez\Form\Element\OptionCollection
-	 */
-	private $options;
-	
 	public function __construct()
 	{
 		parent::__construct();
 	}
-	
-	/**
-	 * Sets options of the checkbox group
-	 * 
-	 * @author	Mehdi Bakhtiari
-	 * @param	\Ez\Form\Element\OptionCollection $options
-	 * @return	\Ez\Form\Element\Checkbox
-	 */
-	public function setOptions( OptionCollection $options )
-	{
-		$this->options = $options;
-		return $this;
-	}
-	
-	/**
-	 * Returns options of the checkbox group
-	 * 
-	 * @author	Mehdi Bakhtiari
-	 * @return	\Ez\Form\Element\OptionCollection
-	 */
-	public function getOptions()
-	{
-		return $this->options;
-	}
-	
-	/**
-	 * Generates the markup of the element to be rendered in a browser
-	 * 
-	 * @author	Mehdi Bakhtiari
-	 * @return	string
-	 */
+
 	public function __toString()
 	{
-		$output	= "";
-		$i		= 0;
-		$ID		= empty( $this->id ) ? $this->name : $this->id;
-		
-		foreach( $this->options->getAll() as $option )
-		{
-			$output .=	"<input type=\"checkbox\" name=\"{$this->name}[{$option->getValue()}]\" id=\"{$ID}_{$i}\""
-			.			" value=\"{$option->getValue()}\""
-			.			( $this->value === $option->getValue() ? " checked=\"checked\" />" : " />" )
-			.			"<label for=\"{$ID}_{$i}\">{$option->getText()}</label>";
-			
-			$i++;
-		}
-		
+		$output =	"<input type=\"file\" name=\"{$this->name}\" id=\"{$this->id}\""
+		             .			( strlen( $this->style ) ? " style=\"{$this->style}\"" : "" )
+		             .			( strlen( $this->class ) ? " class=\"{$this->class}\"" : "" )
+		             .			( strlen( $this->value ) ? " value=\"{$this->value}\"" : "" )
+		             .			" />";
+
 		return $output;
 	}
 }
