@@ -236,8 +236,7 @@ class Request
 	 */
 	public function getControllerClassName()
 	{
-		return $this->
-			controllerClassName;
+		return $this->controllerClassName;
 	}
 
 	/**
