@@ -1,4 +1,4 @@
-####EZ to create new controllers
+##EZ to create new controllers
 The checklist to create a new controller is:
 
 (Let's do an example. Let's create a new controller to handle new user registrations at the URL "/users/register" )
@@ -44,9 +44,8 @@ class UserController extends \Ez\Controller\AbstractController
   }
 }
 ```
+---
+##EZ to access the your database
+To get the built-in instance of doctrine entity manager to access your database from your controller, model and utility classes, all you need to do is to simply call `\Ez\Registry::getDoctrineEntityManager()`
 
-
-####Easy to access the your database
-To get the instance of built-in doctrine entity manager you can call the following line from your controllers and models.
-`\Ez\Registry::getDoctrineEntityManager()`
-
+In case you are not familiar with Doctrine, you will soon find out that it is one of the best PHP ORM libraries out there. And the good news is that it's open source with a huge and active community. Interested in doctrine? [Read more](http://www.doctrine-project.org)
