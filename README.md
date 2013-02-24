@@ -1,4 +1,6 @@
 ez
 ==
 
-EZ is a web development framework that focuses on speed development and generally what matters. It use the latest version of Doctrine 2.x at its heart and some libraries of Zend. As you may have guessed by now, EZ is not a reinvented wheel, but a framework to ease the development phase of web projects.
+###Easy to access the your database
+To get the instance of built-in doctrine entity manager you can call the following line from your controllers and models.
+'\Ez\Registery::getDoctrineEntityManager()'
