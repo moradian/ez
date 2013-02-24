@@ -1,31 +1,28 @@
-#ez
-####Easy to create a new controller
-To create a new controller, create a new class file in the "controllers" directory and name the class file "XYZ.php" and code a class in that file named XYZController and make it extend `\Ez\Controller\AbstractController`
-Example:
-Let's say we want to create a registration page and the URI of the page will be /users/register
-To make it happen create a directory named "Users" in the "controllers" directory and add a new php file named "Register.php"
-We're half done. Next code the structure of the class as the following.
+####Easy to create new controllers
+The checklist to create a new controller is:
 
-`namespace Users;
+(Let's do an example. Let's create a new controller to handle new user registrations at the URL "/users/register" )
 
-class RegisterContoller extends \Ez\Controller\AbstractController
-{
-  public function __construct()
-  {
-  
-  }
-  
-  public function run()
-  {
-  
-  }
-  
-  public function postRun()
-  {
-  
-  }
-}
-`
+1. Create a new directory named "Users" in the "controllers" directory.
+2. Create a PHP file in the "Users" directory from step 1 and name it "Register.php"
+3. Code the class inside the "Register.php" file
+
+`namespace Users;`
+
+`class UserController extends \Ez\Controller\AbstractController`
+`{`
+`}`
+
+As you may have found out
+
+1. Controller class names MUST be postfixed with "Controller".
+2. Controller class names MUST be matched case, not camel cased.
+3. All controllers MUST be extended from the `\Ez\Controller\AbstractController` class.
+
+That's it your're almost done. To code your logic in your new controller you need to implement 2 methods that `\Ez\Controller\AbstractController` enforces you to implement
+
+1. The run method. This method is where the execution of your controller starts.
+2. The postRun method. This method is the very last piece of code that gets executed by EZ before firing response to the client.
 
 
 ####Easy to access the your database
