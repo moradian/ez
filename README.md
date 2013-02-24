@@ -9,9 +9,11 @@ The checklist to create a new controller is:
 
 `namespace Users;`
 
-`class UserController extends \Ez\Controller\AbstractController`
-`{`
-`}`
+`
+class UserController extends \Ez\Controller\AbstractController
+{
+}
+`
 
 As you may have found out
 
@@ -19,7 +21,7 @@ As you may have found out
 2. Controller class names MUST be matched case, not camel cased.
 3. All controllers MUST be extended from the `\Ez\Controller\AbstractController` class.
 
-That's it your're almost done. To code your logic in your new controller you need to implement 2 methods that `\Ez\Controller\AbstractController` enforces you to implement
+That's it your're almost done. To code your logic in your new controller you need to implement 2 methods that `\Ez\Controller\AbstractController` enforces you to implement.
 
 1. The run method. This method is where the execution of your controller starts.
 2. The postRun method. This method is the very last piece of code that gets executed by EZ before firing response to the client.
