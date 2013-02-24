@@ -44,7 +44,7 @@ class UserController extends \Ez\Controller\AbstractController
 }
 ```
 ---
-##EZ to access the your database
+##EZ to access your database
 To access the built-in instance of doctrine entity manager to access your database from your controller, model or utility classes or simply from any possible place in your project, all you need to do is to call `\Ez\Registry::getDoctrineEntityManager()`
 
 In case you are not familiar with Doctrine, you will soon find out that it is one of the best PHP ORM libraries out there. And the good news is that it's open source with a huge and active community. Interested in doctrine? [Read more](http://www.doctrine-project.org)
