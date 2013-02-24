@@ -12,6 +12,8 @@ The checklist to create a new controller is:
 `
 class UserController extends \Ez\Controller\AbstractController
 {
+
+
 }
 `
 
