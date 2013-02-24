@@ -33,7 +33,7 @@ abstract class AbstractController
 	 * @var string
 	 */
 	protected $defaultViewFileName;
-	
+
 	/**
 	 * @var \Ez\Request
 	 */
@@ -65,20 +65,20 @@ abstract class AbstractController
 		$this->request = $request;
 	}
 
-    /**
-     * @return \Ez\View\AbstractView
-     */
-    public function getView()
-    {
-        return $this->view;
-    }
+	/**
+	 * @return \Ez\View\AbstractView
+	 */
+	public function getView()
+	{
+		return $this->view;
+	}
 
 	protected function redirectToHome()
 	{
 		header( "Location: /" );
 		exit;
 	}
-	
+
 	protected function redirectTo( $path )
 	{
 		header( "Location: " . $path );
