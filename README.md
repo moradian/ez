@@ -15,7 +15,7 @@ class UserController extends \Ez\Controller\AbstractController
 }
 ```
 
-As you may have found out
+As you may have noticed
 
 1. Controller class names MUST be postfixed with "Controller".
 2. Controller class names MUST be matched case, not camel cased.
