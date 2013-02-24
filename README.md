@@ -12,7 +12,6 @@ namespace Users;
 
 class UserController extends \Ez\Controller\AbstractController
 {
-
 }
 ```
 
