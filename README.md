@@ -2,7 +2,7 @@
 * [EZ to create new controllers](#ez-to-create-new-controllers)
 * [EZ to access your database](#ez-to-access-your-database)
 
-- - -
+---
 
 ##EZ to access the request
 `\Ez\Request` class gives you all you need. The key note to mention about this class is that it's a singleton one.
