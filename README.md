@@ -1,3 +1,18 @@
+* [EZ to access the request](#ez-to-access-the-request)
+* [EZ to create new controllers](#ez-to-create-new-controllers)
+* [EZ to access your database](#ez-to-access-your-database)
+
+- - -
+
+##EZ to access the request
+`\Ez\Request` class gives you all you need. The key note to mention about this class is that it's a singleton one.
+So to access a parameter in the request object you need to call
+
+* `\Ez\Request::getInstance()->getPost("key")` if you want to access a parameter in $_POST
+* `\Ez\Request::getInstance()->getQuery("key")` if you want to access a parameter in $_GET
+* `\Ez\Request::getInstance()->getParam("key")` if you don't care about the request type and just want to get a parameter.
+
+
 ##EZ to create new controllers
 The checklist to create a new controller is:
 
