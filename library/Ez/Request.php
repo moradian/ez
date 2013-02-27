@@ -118,10 +118,16 @@ class Request
 		return self::$instance;
 	}
 
+	/**
+	 * @static
+	 */
+	public static function reload()
+	{
+		self::$instance = new Request();
+	}
+
 	private function __construct()
 	{
-		$this->stripTagsOffUserInput();
-
 		$this->queryString = $_SERVER[ "QUERY_STRING" ];
 		$this->requestUri  = str_replace( "?" . $this->queryString, "", $_SERVER[ "REQUEST_URI" ] );
 
@@ -425,26 +431,5 @@ class Request
 			str_replace( "/", "\\", str_replace( ".php", "", $this->controllerFileName ) ) . "Controller";
 
 		return $this;
-	}
-
-	/**
-	 * Strips potential tags off any parameter in the request
-	 *
-	 * @return void
-	 */
-	private function stripTagsOffUserInput()
-	{
-		$getKeys  = array_keys( $_GET );
-		$postKeys = array_keys( $_POST );
-
-		foreach( $getKeys as $key )
-		{
-			$_GET[ $key ] = strip_tags( $_GET[ $key ] );
-		}
-
-		foreach( $postKeys as $key )
-		{
-			$_POST[ $key ] = strip_tags( $_POST[ $key ] );
-		}
 	}
 }

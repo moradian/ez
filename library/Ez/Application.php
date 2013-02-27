@@ -112,10 +112,9 @@ class Application extends Application\AbstractApplication
 
 	/**
 	 * Bootstraps doctrine, gets an instance of \Doctrine\ORM\EntityManager
-	7	 * and holds it in $this->doctrineEntityManager
+	 * and holds it in $this->doctrineEntityManager
 	 *
-	 * @author    Mehdi Bakhtiari <mehdone@gmail.com>
-	 * @return    void
+	 * @return void
 	 */
 	private function setUpDoctrine()
 	{

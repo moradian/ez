@@ -15,54 +15,67 @@
  * This software consists of voluntary contributions made by many individuals
  * and is licensed under the LGPL. For more information, see
  * <http://www.ez-project.org>.
- * 
+ *
  * Copyright 2011 Mehdi Bakhtiari
  */
 
 namespace Ez\Plugin;
 
-class Acl extends AbstractPlugin
+class EzRequestFilter extends AbstractPlugin
 {
-	private static $instance = null;
-	
 	/**
-	 * @var \Ez\Acl\IAcl
+	 * @var \Ez\Plugin\EzRequestFilter
 	 */
-	private static $aclImplementation = null;
-	
-	private function __construct() {}
-	
+	private static $instance = null;
+
+	/**
+	 * @return \Ez\Plugin\EzRequestFilter
+	 */
 	public static function getInstance()
 	{
 		if( is_null( self::$instance ) )
 		{
-			self::$instance = new Acl;
+			self::$instance = new EzRequestFilter();
 		}
-		
+
 		return self::$instance;
 	}
-	
+
+	private function __construct()
+	{
+	}
+
 	public function preDispatch( \Ez\Request $request )
 	{
-		if(
-			self::$aclImplementation
-				->isAllowed(
-					\Ez\Request::getInstance(),
-					\Ez\Authentication::getInstance()->getUser()
-			)
-		)
-		{
-			
-		}
+		$this->loopThroughAndCheckParams( $_POST );
+		$this->loopThroughAndCheckParams( $_GET );
+		\Ez\Request::reload();
 	}
-	
+
 	public function postDispatch( \Ez\Request $request )
 	{
-		
+
 	}
-	
-	public static function setAclInstance( \Ez\Acl\IAcl $acl)
+
+	/**
+	 * @param array $params
+	 */
+	private function loopThroughAndCheckParams( array &$params )
 	{
-		self::$aclImplementation = $acl;
+		$keys = array_keys( $params );
+
+		foreach( $keys as $key )
+		{
+			$params[ $key ] = $this->securityCheckParam( $params[ $key ] );
+		}
+	}
+
+	/**
+	 * @param string $value
+	 * @return string
+	 */
+	private function securityCheckParam( $value )
+	{
+		return strip_tags( $value );
 	}
 }
