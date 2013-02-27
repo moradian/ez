@@ -39,14 +39,8 @@ define( "PATH_TO_CACHE"			, ROOT_PATH . "/cache/" );
 define( "PATH_TO_TRANSLATIONS"	, ROOT_PATH . "/translations/" );
 define( "PATH_TO_LIBRARY"		, ROOT_PATH . "/library/" );
 define( "PATH_TO_LOGS"			, ROOT_PATH . "/logs/" );
-define( "USER_SESSION"			, "AUTHENTICATED_USER" );
-define( "ADMIN_SESSION"			, "ADMINISTRATOR_USER" );
 
-// INCLUDES
 require_once PATH_TO_LIBRARY . "/Ez/Autoloader.php";
 
-// SETTING UP AUTOLOADER FOR DOCTRINE
 Ez\Autoloader::addPath( PATH_TO_LIBRARY );
-
-// REGISTER AUTOLOAD METHOD
 Ez\Autoloader::register();
