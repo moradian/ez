@@ -23,8 +23,7 @@
 session_start();
 ini_set( "display_errors", 1 );
 
-// THIS IS PHP SCRIPT THAT HOLDS ALL DEFINED CONSTANTS
-// ABOUT THIS WHOLE WEBSITE.
+// THIS IS PHP SCRIPT THAT HOLDS ALL APPLICATION-WIDE CONSTANTS AND IS ACTUALLY THE BOOTSTRAP OF WEB APPLICATION
 require_once "../config.php";
 
 $application = new Ez\Application;
