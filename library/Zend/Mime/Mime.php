@@ -3,18 +3,14 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Mime
  */
 
 namespace Zend\Mime;
 
 /**
  * Support class for MultiPart Mime Messages
- *
- * @category   Zend
- * @package    Zend_Mime
  */
 class Mime
 {
@@ -95,11 +91,11 @@ class Mime
      * false, encode the string for secure delivery.
      *
      * @param string $str
-     * @return boolean
+     * @return bool
      */
     public static function isPrintable($str)
     {
-        return (strcspn($str, self::$qpKeysString) == strlen($str));
+        return (strcspn($str, static::$qpKeysString) == strlen($str));
     }
 
     /**
@@ -107,7 +103,7 @@ class Mime
      *
      * @param string $str
      * @param int $lineLength Defaults to {@link LINELENGTH}
-     * @param int $lineEnd Defaults to {@link LINEEND}
+     * @param string $lineEnd Defaults to {@link LINEEND}
      * @return string
      */
     public static function encodeQuotedPrintable($str,
@@ -154,7 +150,7 @@ class Mime
     private static function _encodeQuotedPrintable($str)
     {
         $str = str_replace('=', '=3D', $str);
-        $str = str_replace(self::$qpKeys, self::$qpReplaceValues, $str);
+        $str = str_replace(static::$qpKeys, static::$qpReplaceValues, $str);
         $str = rtrim($str);
         return $str;
     }
@@ -168,7 +164,7 @@ class Mime
      * @param string $str
      * @param string $charset
      * @param int $lineLength Defaults to {@link LINELENGTH}
-     * @param int $lineEnd Defaults to {@link LINEEND}
+     * @param string $lineEnd Defaults to {@link LINEEND}
      * @return string
      */
     public static function encodeQuotedPrintableHeader($str, $charset,
@@ -189,16 +185,16 @@ class Mime
 
         // Split encoded text into separate lines
         $tmp = "";
-        while(strlen($str) > 0) {
+        while (strlen($str) > 0) {
             $currentLine = max(count($lines)-1, 0);
-            $token       = self::getNextQuotedPrintableToken($str);
+            $token       = static::getNextQuotedPrintableToken($str);
             $str         = substr($str, strlen($token));
 
             $tmp .= $token;
-            if($token == '=20') {
+            if ($token == '=20') {
                 // only if we have a single char token or space, we can append the
                 // tempstring it to the current line or start a new line if necessary.
-                if(strlen($lines[$currentLine].$tmp) > $lineLength) {
+                if (strlen($lines[$currentLine] . $tmp) > $lineLength) {
                     $lines[$currentLine+1] = $tmp;
                 } else {
                     $lines[$currentLine] .= $tmp;
@@ -206,14 +202,14 @@ class Mime
                 $tmp = "";
             }
             // don't forget to append the rest to the last line
-            if(strlen($str) == 0) {
+            if (strlen($str) == 0) {
                 $lines[$currentLine] .= $tmp;
             }
         }
 
         // assemble the lines together by pre- and appending delimiters, charset, encoding.
-        for($i = 0; $i < count($lines); $i++) {
-            $lines[$i] = " ".$prefix.$lines[$i]."?=";
+        for ($i = 0; $i < count($lines); $i++) {
+            $lines[$i] = " " . $prefix . $lines[$i] . "?=";
         }
         $str = trim(implode($lineEnd, $lines));
         return $str;
@@ -227,7 +223,7 @@ class Mime
      */
     private static function getNextQuotedPrintableToken($str)
     {
-        if(substr($str, 0, 1) == "=") {
+        if (substr($str, 0, 1) == "=") {
             $token = substr($str, 0, 3);
         } else {
             $token = substr($str, 0, 1);
@@ -241,7 +237,7 @@ class Mime
      * @param string $str
      * @param string $charset
      * @param int $lineLength Defaults to {@link LINELENGTH}
-     * @param int $lineEnd Defaults to {@link LINEEND}
+     * @param string $lineEnd Defaults to {@link LINEEND}
      * @return string
      */
     public static function encodeBase64Header($str,
@@ -253,7 +249,7 @@ class Mime
         $suffix = '?=';
         $remainingLength = $lineLength - strlen($prefix) - strlen($suffix);
 
-        $encodedValue = self::encodeBase64($str, $remainingLength, $lineEnd);
+        $encodedValue = static::encodeBase64($str, $remainingLength, $lineEnd);
         $encodedValue = str_replace($lineEnd, $suffix . $lineEnd . ' ' . $prefix, $encodedValue);
         $encodedValue = $prefix . $encodedValue . $suffix;
         return $encodedValue;
@@ -265,7 +261,7 @@ class Mime
      *
      * @param string $str
      * @param int $lineLength Defaults to {@link LINELENGTH}
-     * @param int $lineEnd Defaults to {@link LINEEND}
+     * @param string $lineEnd Defaults to {@link LINEEND}
      * @return string
      */
     public static function encodeBase64($str,
@@ -280,13 +276,12 @@ class Mime
      *
      * @param null|string $boundary
      * @access public
-     * @return void
      */
     public function __construct($boundary = null)
     {
         // This string needs to be somewhat unique
         if ($boundary === null) {
-            $this->boundary = '=_' . md5(microtime(1) . self::$makeUnique++);
+            $this->boundary = '=_' . md5(microtime(1) . static::$makeUnique++);
         } else {
             $this->boundary = $boundary;
         }
@@ -304,10 +299,10 @@ class Mime
     {
         switch ($encoding) {
             case self::ENCODING_BASE64:
-                return self::encodeBase64($str, self::LINELENGTH, $EOL);
+                return static::encodeBase64($str, self::LINELENGTH, $EOL);
 
             case self::ENCODING_QUOTEDPRINTABLE:
-                return self::encodeQuotedPrintable($str, self::LINELENGTH, $EOL);
+                return static::encodeQuotedPrintable($str, self::LINELENGTH, $EOL);
 
             default:
                 /**
@@ -331,7 +326,7 @@ class Mime
     /**
      * Return a MIME boundary line
      *
-     * @param mixed $EOL Defaults to {@link LINEEND}
+     * @param string $EOL Defaults to {@link LINEEND}
      * @access public
      * @return string
      */
@@ -343,6 +338,7 @@ class Mime
     /**
      * Return MIME ending
      *
+     * @param string $EOL Defaults to {@link LINEEND}
      * @access public
      * @return string
      */

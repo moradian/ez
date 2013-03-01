@@ -3,18 +3,14 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Mail
  */
 
 namespace Zend\Mail\Protocol;
 
-/**
- * @category   Zend
- * @package    Zend_Mail
- * @subpackage Protocol
- */
+use Zend\Stdlib\ErrorHandler;
+
 class Pop3
 {
     /**
@@ -76,20 +72,36 @@ class Pop3
      */
     public function connect($host, $port = null, $ssl = false)
     {
-        if ($ssl == 'SSL') {
-            $host = 'ssl://' . $host;
+        $isTls = false;
+
+        if ($ssl) {
+            $ssl = strtolower($ssl);
         }
 
-        if ($port === null) {
-            $port = $ssl == 'SSL' ? 995 : 110;
+        switch ($ssl) {
+            case 'ssl':
+                $host = 'ssl://' . $host;
+                if (!$port) {
+                    $port = 995;
+                }
+                break;
+            case 'tls':
+                $isTls = true;
+                // break intentionally omitted
+            default:
+                if (!$port) {
+                    $port = 110;
+                }
         }
 
-        $errno  =  0;
-        $errstr = '';
-        $this->socket = @fsockopen($host, $port, $errno, $errstr, self::TIMEOUT_CONNECTION);
+        ErrorHandler::start();
+        $this->socket = fsockopen($host, $port, $errno, $errstr, self::TIMEOUT_CONNECTION);
+        $error = ErrorHandler::stop();
         if (!$this->socket) {
-            throw new Exception\RuntimeException('cannot connect to host; error = ' . $errstr
-                                . ' (errno = ' . $errno . ' )');
+            throw new Exception\RuntimeException(sprintf(
+                'cannot connect to host %s',
+                ($error ? sprintf('; error = %s (errno = %d )', $error->getMessage(), $error->getCode()) : '')
+            ), 0, $error);
         }
 
         $welcome = $this->readResponse();
@@ -102,7 +114,7 @@ class Pop3
             $this->timestamp = '<' . $this->timestamp . '>';
         }
 
-        if ($ssl === 'TLS') {
+        if ($isTls) {
             $this->request('STLS');
             $result = stream_socket_enable_crypto($this->socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT);
             if (!$result) {
@@ -122,9 +134,11 @@ class Pop3
      */
     public function sendRequest($request)
     {
-        $result = @fputs($this->socket, $request . "\r\n");
+        ErrorHandler::start();
+        $result = fputs($this->socket, $request . "\r\n");
+        $error  = ErrorHandler::stop();
         if (!$result) {
-            throw new Exception\RuntimeException('send failed - connection closed?');
+            throw new Exception\RuntimeException('send failed - connection closed?', 0, $error);
         }
     }
 
@@ -132,15 +146,17 @@ class Pop3
     /**
      * read a response
      *
-     * @param  boolean $multiline response has multiple lines and should be read until "<nl>.<nl>"
+     * @param  bool $multiline response has multiple lines and should be read until "<nl>.<nl>"
      * @throws Exception\RuntimeException
      * @return string response
      */
     public function readResponse($multiline = false)
     {
-        $result = @fgets($this->socket);
+        ErrorHandler::start();
+        $result = fgets($this->socket);
+        $error  = ErrorHandler::stop();
         if (!is_string($result)) {
-            throw new Exception\RuntimeException('read failed - connection closed?');
+            throw new Exception\RuntimeException('read failed - connection closed?', 0, $error);
         }
 
         $result = trim($result);
@@ -267,7 +283,7 @@ class Pop3
             $result = $this->request("LIST $msgno");
 
             list(, $result) = explode(' ', $result);
-            return (int)$result;
+            return (int) $result;
         }
 
         $result = $this->request('LIST', true);
@@ -275,7 +291,7 @@ class Pop3
         $line = strtok($result, "\n");
         while ($line) {
             list($no, $size) = explode(' ', trim($line));
-            $messages[(int)$no] = (int)$size;
+            $messages[(int) $no] = (int) $size;
             $line = strtok("\n");
         }
 
@@ -307,7 +323,7 @@ class Pop3
                 continue;
             }
             list($no, $id) = explode(' ', trim($line), 2);
-            $messages[(int)$no] = $id;
+            $messages[(int) $no] = $id;
         }
 
         return $messages;
@@ -339,7 +355,7 @@ class Pop3
         }
         $this->hasTop = true;
 
-        $lines = (!$lines || $lines < 1) ? 0 : (int)$lines;
+        $lines = (!$lines || $lines < 1) ? 0 : (int) $lines;
 
         try {
             $result = $this->request("TOP $msgno $lines", true);

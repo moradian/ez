@@ -3,16 +3,14 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Stdlib
  */
 
 namespace Zend\Stdlib\Hydrator;
 
 use ReflectionClass;
 use Zend\Stdlib\Exception;
-use Zend\Stdlib\Hydrator\HydratorInterface;
 
 class Reflection extends AbstractHydrator
 {
@@ -31,8 +29,11 @@ class Reflection extends AbstractHydrator
     public function extract($object)
     {
         $result = array();
-        foreach(self::getReflProperties($object) as $property) {
+        foreach (self::getReflProperties($object) as $property) {
             $propertyName = $property->getName();
+            if (!$this->filterComposite->filter($propertyName)) {
+                continue;
+            }
 
             $value = $property->getValue($object);
             $result[$propertyName] = $this->extractValue($propertyName, $value);
@@ -51,7 +52,7 @@ class Reflection extends AbstractHydrator
     public function hydrate(array $data, $object)
     {
         $reflProperties = self::getReflProperties($object);
-        foreach($data as $key => $value) {
+        foreach ($data as $key => $value) {
             if (isset($reflProperties[$key])) {
                 $reflProperties[$key]->setValue($object, $this->hydrateValue($key, $value));
             }
@@ -64,7 +65,8 @@ class Reflection extends AbstractHydrator
      * class has not been loaded.
      *
      * @static
-     * @param string|object $object
+     * @param string|object $input
+     * @throws Exception\InvalidArgumentException
      * @return array
      */
     protected static function getReflProperties($input)
@@ -75,16 +77,16 @@ class Reflection extends AbstractHydrator
             throw new Exception\InvalidArgumentException('Input must be a string or an object.');
         }
 
-        if (!isset(self::$reflProperties[$input])) {
+        if (!isset(static::$reflProperties[$input])) {
             $reflClass      = new ReflectionClass($input);
             $reflProperties = $reflClass->getProperties();
 
-            foreach($reflProperties as $key => $property) {
+            foreach ($reflProperties as $property) {
                 $property->setAccessible(true);
-                self::$reflProperties[$input][$property->getName()] = $property;
+                static::$reflProperties[$input][$property->getName()] = $property;
             }
         }
 
-        return self::$reflProperties[$input];
+        return static::$reflProperties[$input];
     }
 }

@@ -3,9 +3,8 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_I18n
  */
 
 namespace Zend\I18n\Translator\Loader;
@@ -13,15 +12,12 @@ namespace Zend\I18n\Translator\Loader;
 use Zend\I18n\Exception;
 use Zend\I18n\Translator\Plural\Rule as PluralRule;
 use Zend\I18n\Translator\TextDomain;
+use Zend\Stdlib\ErrorHandler;
 
 /**
  * Gettext loader.
- *
- * @category   Zend
- * @package    Zend_I18n
- * @subpackage Translator
  */
-class Gettext implements LoaderInterface
+class Gettext implements FileLoaderInterface
 {
     /**
      * Current file pointer.
@@ -33,20 +29,20 @@ class Gettext implements LoaderInterface
     /**
      * Whether the current file is little endian.
      *
-     * @var boolean
+     * @var bool
      */
     protected $littleEndian;
 
     /**
-     * load(): defined by LoaderInterface.
+     * load(): defined by FileLoaderInterface.
      *
-     * @see    LoaderInterface::load()
-     * @param  string $filename
+     * @see    FileLoaderInterface::load()
      * @param  string $locale
+     * @param  string $filename
      * @return TextDomain
      * @throws Exception\InvalidArgumentException
      */
-    public function load($filename, $locale)
+    public function load($locale, $filename)
     {
         if (!is_file($filename) || !is_readable($filename)) {
             throw new Exception\InvalidArgumentException(sprintf(
@@ -57,7 +53,15 @@ class Gettext implements LoaderInterface
 
         $textDomain = new TextDomain();
 
-        $this->file = @fopen($filename, 'rb');
+        ErrorHandler::start();
+        $this->file = fopen($filename, 'rb');
+        $error = ErrorHandler::stop();
+        if (false === $this->file) {
+            throw new Exception\InvalidArgumentException(sprintf(
+                'Could not open file %s for reading',
+                $filename
+            ), 0, $error);
+        }
 
         // Verify magic number
         $magic = fread($this->file, 4);
@@ -177,8 +181,8 @@ class Gettext implements LoaderInterface
     {
         if ($this->littleEndian) {
             return unpack('V' . $num, fread($this->file, 4 * $num));
-        } else {
-            return unpack('N' . $num, fread($this->file, 4 * $num));
         }
+
+        return unpack('N' . $num, fread($this->file, 4 * $num));
     }
 }

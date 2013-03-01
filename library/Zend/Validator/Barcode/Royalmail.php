@@ -3,17 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Validator
  */
 
 namespace Zend\Validator\Barcode;
 
-/**
- * @category   Zend
- * @package    Zend_Validate
- */
 class Royalmail extends AbstractAdapter
 {
     protected $rows = array(
@@ -48,7 +43,7 @@ class Royalmail extends AbstractAdapter
      * Validates the checksum ()
      *
      * @param  string $value The barcode to validate
-     * @return boolean
+     * @return bool
      */
     protected function royalmail($value)
     {
@@ -56,7 +51,7 @@ class Royalmail extends AbstractAdapter
         $values   = str_split(substr($value, 0, -1));
         $rowvalue = 0;
         $colvalue = 0;
-        foreach($values as $row) {
+        foreach ($values as $row) {
             $rowvalue += $this->rows[$row];
             $colvalue += $this->columns[$row];
         }
@@ -79,7 +74,7 @@ class Royalmail extends AbstractAdapter
      * Allows start and stop tag within checked chars
      *
      * @param  string $value The barcode to check for allowed characters
-     * @return boolean
+     * @return bool
      */
     public function hasValidCharacters($value)
     {

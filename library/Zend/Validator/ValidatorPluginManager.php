@@ -3,9 +3,8 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Validator
  */
 
 namespace Zend\Validator;
@@ -14,10 +13,6 @@ use Zend\I18n\Translator\TranslatorAwareInterface;
 use Zend\ServiceManager\AbstractPluginManager;
 use Zend\ServiceManager\ConfigInterface;
 
-/**
- * @category   Zend
- * @package    Zend_Validator
- */
 class ValidatorPluginManager extends AbstractPluginManager
 {
     /**
@@ -84,17 +79,19 @@ class ValidatorPluginManager extends AbstractPluginManager
         'filesha1'                 => 'Zend\Validator\File\Sha1',
         'filesize'                 => 'Zend\Validator\File\Size',
         'fileupload'               => 'Zend\Validator\File\Upload',
+        'fileuploadfile'           => 'Zend\Validator\File\UploadFile',
         'filewordcount'            => 'Zend\Validator\File\WordCount',
         'float'                    => 'Zend\I18n\Validator\Float',
         'greaterthan'              => 'Zend\Validator\GreaterThan',
         'hex'                      => 'Zend\Validator\Hex',
         'hostname'                 => 'Zend\Validator\Hostname',
-        'iban'                     => 'Zend\I18n\Validator\Iban',
+        'iban'                     => 'Zend\Validator\Iban',
         'identical'                => 'Zend\Validator\Identical',
         'inarray'                  => 'Zend\Validator\InArray',
         'int'                      => 'Zend\I18n\Validator\Int',
         'ip'                       => 'Zend\Validator\Ip',
         'isbn'                     => 'Zend\Validator\Isbn',
+        'isinstanceof'             => 'Zend\Validator\IsInstanceOf',
         'lessthan'                 => 'Zend\Validator\LessThan',
         'notempty'                 => 'Zend\Validator\NotEmpty',
         'postcode'                 => 'Zend\I18n\Validator\PostCode',
@@ -105,6 +102,7 @@ class ValidatorPluginManager extends AbstractPluginManager
         'sitemappriority'          => 'Zend\Validator\Sitemap\Priority',
         'stringlength'             => 'Zend\Validator\StringLength',
         'step'                     => 'Zend\Validator\Step',
+        'uri'                      => 'Zend\Validator\Uri',
     );
 
     /**
@@ -121,7 +119,6 @@ class ValidatorPluginManager extends AbstractPluginManager
      * attached translator, if any, to the currently requested helper.
      *
      * @param  null|ConfigInterface $configuration
-     * @return void
      */
     public function __construct(ConfigInterface $configuration = null)
     {

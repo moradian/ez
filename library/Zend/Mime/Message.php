@@ -3,17 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Mime
  */
 
 namespace Zend\Mime;
 
-/**
- * @category   Zend
- * @package    Zend_Mime
- */
 class Message
 {
 
@@ -57,7 +52,7 @@ class Message
      * Check if message needs to be sent as multipart
      * MIME message or if it has only one part.
      *
-     * @return boolean
+     * @return bool
      */
     public function isMultiPart()
     {
@@ -101,7 +96,7 @@ class Message
      * only one part is present, the content of this part is returned. If no
      * part had been added, an empty string is returned.
      *
-     * Parts are seperated by the mime boundary as defined in Zend_Mime. If
+     * Parts are separated by the mime boundary as defined in Zend_Mime. If
      * {@link setMime()} has been called before this method, the Zend_Mime
      * object set by this call will be used. Otherwise, a new Zend_Mime object
      * is generated and used.
@@ -111,9 +106,9 @@ class Message
      */
     public function generateMessage($EOL = Mime::LINEEND)
     {
-        if (! $this->isMultiPart()) {
-            $body = array_shift($this->parts);
-            $body = $body->getContent($EOL);
+        if (!$this->isMultiPart()) {
+            $part = current($this->parts);
+            $body = $part->getContent($EOL);
         } else {
             $mime = $this->getMime();
 
@@ -149,6 +144,7 @@ class Message
      * Get the headers of a given part as a string
      *
      * @param int $partnum
+     * @param string $EOL
      * @return string
      */
     public function getPartHeaders($partnum, $EOL = Mime::LINEEND)
@@ -160,6 +156,7 @@ class Message
      * Get the (encoded) content of a given part as a string
      *
      * @param int $partnum
+     * @param string $EOL
      * @return string
      */
     public function getPartContent($partnum, $EOL = Mime::LINEEND)
@@ -168,22 +165,23 @@ class Message
     }
 
     /**
-     * Explode MIME multipart string into seperate parts
+     * Explode MIME multipart string into separate parts
      *
      * Parts consist of the header and the body of each MIME part.
      *
      * @param string $body
      * @param string $boundary
+     * @throws Exception\RuntimeException
      * @return array
      */
     protected static function _disassembleMime($body, $boundary)
     {
-        $start = 0;
-        $res = array();
+        $start  = 0;
+        $res    = array();
         // find every mime part limiter and cut out the
         // string before it.
         // the part before the first boundary string is discarded:
-        $p = strpos($body, '--'.$boundary."\n", $start);
+        $p = strpos($body, '--' . $boundary."\n", $start);
         if ($p === false) {
             // no parts found!
             return array();
@@ -215,13 +213,14 @@ class Message
      * @param string $message
      * @param string $boundary
      * @param string $EOL EOL string; defaults to {@link Zend_Mime::LINEEND}
+     * @throws Exception\RuntimeException
      * @return \Zend\Mime\Message
      */
     public static function createFromMessage($message, $boundary, $EOL = Mime::LINEEND)
     {
         $parts = Decode::splitMessageStruct($message, $boundary, $EOL);
 
-        $res = new self();
+        $res = new static();
         foreach ($parts as $part) {
             // now we build a new MimePart for the current Message Part:
             $newPart = new Part($part['body']);
@@ -261,6 +260,7 @@ class Message
             }
             $res->addPart($newPart);
         }
+
         return $res;
     }
 }

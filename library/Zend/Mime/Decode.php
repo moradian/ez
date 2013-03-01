@@ -3,9 +3,8 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Mime
  */
 
 namespace Zend\Mime;
@@ -13,14 +12,10 @@ namespace Zend\Mime;
 use Zend\Mail\Headers;
 use Zend\Stdlib\ErrorHandler;
 
-/**
- * @category   Zend
- * @package    Zend_Mime
- */
 class Decode
 {
     /**
-     * Explode MIME multipart string into seperate parts
+     * Explode MIME multipart string into separate parts
      *
      * Parts consist of the header and the body of each MIME part.
      *
@@ -31,7 +26,7 @@ class Decode
      */
     public static function splitMime($body, $boundary)
     {
-        // TODO: we're ignoring \r for now - is this function fast enough and is it safe to asume noone needs \r?
+        // TODO: we're ignoring \r for now - is this function fast enough and is it safe to assume noone needs \r?
         $body = str_replace("\r", '', $body);
 
         $start = 0;
@@ -76,7 +71,7 @@ class Decode
      */
     public static function splitMessageStruct($message, $boundary, $EOL = Mime::LINEEND)
     {
-        $parts = self::splitMime($message, $boundary);
+        $parts = static::splitMime($message, $boundary);
         if (count($parts) <= 0) {
             return null;
         }
@@ -84,7 +79,7 @@ class Decode
         $headers = null; // "Declare" variable before the first usage "for reading"
         $body    = null; // "Declare" variable before the first usage "for reading"
         foreach ($parts as $part) {
-            self::splitMessage($part, $headers, $body, $EOL);
+            static::splitMessage($part, $headers, $body, $EOL);
             $result[] = array('header' => $headers,
                               'body'   => $body    );
         }
@@ -101,7 +96,7 @@ class Decode
      * @param  Headers         $headers output param, headers container
      * @param  string          $body    output param, content of message
      * @param  string          $EOL EOL string; defaults to {@link Zend_Mime::LINEEND}
-     * @param  boolean         $strict  enable strict mode for parsing message
+     * @param  bool         $strict  enable strict mode for parsing message
      * @return null
      */
     public static function splitMessage($message, &$headers, &$body, $EOL = Mime::LINEEND, $strict = false)
@@ -113,7 +108,7 @@ class Decode
         $firstline = strtok($message, "\n");
         if (!preg_match('%^[^\s]+[^:]*:%', $firstline)) {
             $headers = array();
-            // TODO: we're ignoring \r for now - is this function fast enough and is it safe to asume noone needs \r?
+            // TODO: we're ignoring \r for now - is this function fast enough and is it safe to assume noone needs \r?
             $body = str_replace(array("\r", "\n"), array('', $EOL), $message);
             return;
         }
@@ -155,7 +150,7 @@ class Decode
      */
     public static function splitContentType($type, $wantedPart = null)
     {
-        return self::splitHeaderField($type, $wantedPart, 'type');
+        return static::splitHeaderField($type, $wantedPart, 'type');
     }
 
     /**

@@ -3,9 +3,8 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_I18n
  */
 
 namespace Zend\I18n\Filter;
@@ -13,6 +12,7 @@ namespace Zend\I18n\Filter;
 use NumberFormatter;
 use Traversable;
 use Zend\I18n\Exception;
+use Zend\Stdlib\ErrorHandler;
 
 class NumberFormat extends AbstractLocale
 {
@@ -143,10 +143,14 @@ class NumberFormat extends AbstractLocale
         $type      = $this->getType();
 
         if (is_int($value) || is_float($value)) {
-            $result = @numfmt_format($formatter, $value, $type);
+            ErrorHandler::start();
+            $result = $formatter->format($value, $type);
+            ErrorHandler::stop();
         } else {
             $value = str_replace(array("\xC2\xA0", ' '), '', $value);
-            $result = @numfmt_parse($formatter, $value, $type);
+            ErrorHandler::start();
+            $result = $formatter->parse($value, $type);
+            ErrorHandler::stop();
         }
 
         if ($result === false) {

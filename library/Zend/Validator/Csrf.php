@@ -3,9 +3,8 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Validator
  */
 
 namespace Zend\Validator;
@@ -65,7 +64,7 @@ class Csrf extends AbstractValidator
 
     /**
      * TTL for CSRF token
-     * @var int
+     * @var int|null
      */
     protected $timeout = 300;
 
@@ -76,7 +75,7 @@ class Csrf extends AbstractValidator
      */
     public function __construct($options = array())
     {
-        parent::__construct();
+        parent::__construct($options);
 
         if ($options instanceof Traversable) {
             $options = ArrayUtils::iteratorToArray($options);
@@ -205,7 +204,7 @@ class Csrf extends AbstractValidator
     /**
      * Retrieve CSRF token
      *
-     * If no CSRF token currently exists, or should be regenrated,
+     * If no CSRF token currently exists, or should be regenerated,
      * generates one.
      *
      * @param  bool $regenerate    default false
@@ -235,18 +234,20 @@ class Csrf extends AbstractValidator
      */
     public function getSessionName()
     {
-        return str_replace('\\', '_', __CLASS__) . '_' . $this->getSalt() . '_' . $this->getName();
+        return str_replace('\\', '_', __CLASS__) . '_'
+            . $this->getSalt() . '_'
+            . strtr($this->getName(), array('[' => '_', ']' => ''));
     }
 
     /**
      * Set timeout for CSRF session token
      *
-     * @param  int $ttl
+     * @param  int|null $ttl
      * @return Csrf
      */
     public function setTimeout($ttl)
     {
-        $this->timeout = (int) $ttl;
+        $this->timeout = ($ttl !== null) ? (int) $ttl : null;
         return $this;
     }
 
@@ -269,7 +270,10 @@ class Csrf extends AbstractValidator
     {
         $session = $this->getSession();
         //$session->setExpirationHops(1, null, true);
-        $session->setExpirationSeconds($this->getTimeout());
+        $timeout = $this->getTimeout();
+        if (null !== $timeout) {
+            $session->setExpirationSeconds($timeout);
+        }
         $session->hash = $this->getHash();
     }
 

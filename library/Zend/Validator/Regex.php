@@ -3,20 +3,16 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Validator
  */
 
 namespace Zend\Validator;
 
 use Traversable;
 use Zend\Stdlib\ArrayUtils;
+use Zend\Stdlib\ErrorHandler;
 
-/**
- * @category   Zend
- * @package    Zend_Validate
- */
 class Regex extends AbstractValidator
 {
     const INVALID   = 'regexInvalid';
@@ -96,11 +92,13 @@ class Regex extends AbstractValidator
      */
     public function setPattern($pattern)
     {
+        ErrorHandler::start();
         $this->pattern = (string) $pattern;
-        $status        = @preg_match($this->pattern, "Test");
+        $status        = preg_match($this->pattern, "Test");
+        $error         = ErrorHandler::stop();
 
         if (false === $status) {
-             throw new Exception\InvalidArgumentException("Internal error parsing the pattern '{$this->pattern}'");
+             throw new Exception\InvalidArgumentException("Internal error parsing the pattern '{$this->pattern}'", 0, $error);
         }
 
         return $this;
@@ -110,7 +108,7 @@ class Regex extends AbstractValidator
      * Returns true if and only if $value matches against the pattern option
      *
      * @param  string $value
-     * @return boolean
+     * @return bool
      */
     public function isValid($value)
     {
@@ -121,7 +119,9 @@ class Regex extends AbstractValidator
 
         $this->setValue($value);
 
-        $status = @preg_match($this->pattern, $value);
+        ErrorHandler::start();
+        $status = preg_match($this->pattern, $value);
+        ErrorHandler::stop();
         if (false === $status) {
             $this->error(self::ERROROUS);
             return false;

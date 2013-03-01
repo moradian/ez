@@ -3,17 +3,14 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Mail
  */
 
 namespace Zend\Mail\Storage;
 
-/**
- * @category   Zend
- * @package    Zend_Mail
- */
+use Zend\Stdlib\ErrorHandler;
+
 class Message extends Part implements Message\MessageInterface
 {
     /**
@@ -36,9 +33,11 @@ class Message extends Part implements Message\MessageInterface
     {
         if (isset($params['file'])) {
             if (!is_resource($params['file'])) {
-                $params['raw'] = @file_get_contents($params['file']);
+                ErrorHandler::start();
+                $params['raw'] = file_get_contents($params['file']);
+                $error = ErrorHandler::stop();
                 if ($params['raw'] === false) {
-                    throw new Exception\RuntimeException('could not open file');
+                    throw new Exception\RuntimeException('could not open file', 0, $error);
                 }
             } else {
                 $params['raw'] = stream_get_contents($params['file']);

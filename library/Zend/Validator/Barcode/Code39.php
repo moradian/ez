@@ -3,17 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Validator
  */
 
 namespace Zend\Validator\Barcode;
 
-/**
- * @category   Zend
- * @package    Zend_Validate
- */
 class Code39 extends AbstractAdapter
 {
     /**
@@ -44,14 +39,14 @@ class Code39 extends AbstractAdapter
      * Validates the checksum (Modulo 43)
      *
      * @param  string $value The barcode to validate
-     * @return boolean
+     * @return bool
      */
     protected function code39($value)
     {
         $checksum = substr($value, -1, 1);
         $value    = str_split(substr($value, 0, -1));
         $count    = 0;
-        foreach($value as $char) {
+        foreach ($value as $char) {
             $count += $this->check[$char];
         }
 

@@ -3,20 +3,14 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Mail
  */
 
 namespace Zend\Mail\Storage;
 
 use Zend\Stdlib\ErrorHandler;
 
-/**
- * @category   Zend
- * @package    Zend_Mail
- * @subpackage Storage
- */
 class Mbox extends AbstractStorage
 {
     /**
@@ -183,7 +177,7 @@ class Mbox extends AbstractStorage
     public function __construct($params)
     {
         if (is_array($params)) {
-            $params = (object)$params;
+            $params = (object) $params;
         }
 
         if (!isset($params->filename)) {
@@ -246,9 +240,11 @@ class Mbox extends AbstractStorage
             $this->close();
         }
 
-        $this->fh = @fopen($filename, 'r');
+        ErrorHandler::start();
+        $this->fh = fopen($filename, 'r');
+        $error = ErrorHandler::stop();
         if (!$this->fh) {
-            throw new Exception\RuntimeException('cannot open mbox file');
+            throw new Exception\RuntimeException('cannot open mbox file', 0, $error);
         }
         $this->filename = $filename;
         $this->filemtime = filemtime($this->filename);
@@ -256,8 +252,8 @@ class Mbox extends AbstractStorage
         if (!$this->isMboxFile($this->fh, false)) {
             ErrorHandler::start(E_WARNING);
             fclose($this->fh);
-            ErrorHandler::stop();
-            throw new Exception\InvalidArgumentException('file is not a valid mbox format');
+            $error = ErrorHandler::stop();
+            throw new Exception\InvalidArgumentException('file is not a valid mbox format', 0, $error);
         }
 
         $messagePos = array('start' => ftell($this->fh), 'separator' => 0, 'end' => 0);
@@ -299,7 +295,7 @@ class Mbox extends AbstractStorage
     /**
      * Waste some CPU cycles doing nothing.
      *
-     * @return boolean always return true
+     * @return bool always return true
      */
     public function noop()
     {
@@ -380,15 +376,19 @@ class Mbox extends AbstractStorage
      */
     public function __wakeup()
     {
-        if ($this->filemtime != @filemtime($this->filename)) {
+        ErrorHandler::start();
+        $filemtime = filemtime($this->filename);
+        ErrorHandler::stop();
+        if ($this->filemtime != $filemtime) {
             $this->close();
             $this->openMboxFile($this->filename);
         } else {
-            $this->fh = @fopen($this->filename, 'r');
+            ErrorHandler::start();
+            $this->fh = fopen($this->filename, 'r');
+            $error    = ErrorHandler::stop();
             if (!$this->fh) {
-                throw new Exception\RuntimeException('cannot open mbox file');
+                throw new Exception\RuntimeException('cannot open mbox file', 0, $error);
             }
         }
     }
-
 }

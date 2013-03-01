@@ -3,9 +3,8 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
- * @package   Zend_Validator
  */
 
 namespace Zend\Validator;
@@ -13,10 +12,6 @@ namespace Zend\Validator;
 use Traversable;
 use Zend\Stdlib\ArrayUtils;
 
-/**
- * @category   Zend
- * @package    Zend_Validate
- */
 class CreditCard extends AbstractValidator
 {
     /**
@@ -56,8 +51,8 @@ class CreditCard extends AbstractValidator
         self::INVALID        => "Invalid type given. String expected",
         self::LENGTH         => "The input contains an invalid amount of digits",
         self::PREFIX         => "The input is not from an allowed institute",
-        self::SERVICE        => "The input seems to be an invalid creditcard number",
-        self::SERVICEFAILURE => "An exception has been raised while validating the input.",
+        self::SERVICE        => "The input seems to be an invalid credit card number.",
+        self::SERVICEFAILURE => "An exception has been raised while validating the input",
     );
 
     /**
@@ -203,7 +198,7 @@ class CreditCard extends AbstractValidator
             $type = array($type);
         }
 
-        foreach($type as $typ) {
+        foreach ($type as $typ) {
             if (defined('self::' . strtoupper($typ)) && !in_array($typ, $this->options['type'])) {
                 $this->options['type'][] = $typ;
             }
@@ -219,7 +214,7 @@ class CreditCard extends AbstractValidator
     /**
      * Returns the actual set service
      *
-     * @return callback
+     * @return callable
      */
     public function getService()
     {
@@ -247,7 +242,7 @@ class CreditCard extends AbstractValidator
      * Returns true if and only if $value follows the Luhn algorithm (mod-10 checksum)
      *
      * @param  string $value
-     * @return boolean
+     * @return bool
      */
     public function isValid($value)
     {
@@ -279,7 +274,7 @@ class CreditCard extends AbstractValidator
             }
         }
 
-        if ($foundp == false){
+        if ($foundp == false) {
             $this->error(self::PREFIX, $value);
             return false;
         }
