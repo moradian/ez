@@ -31,8 +31,6 @@ class View extends View\AbstractView
 	}
 	
 	/**
-	 * 
-	 * @author	Mehdi Bakhtiari
 	 * @return	\Ez\View\AbstractView
 	 */
 	public static function getInstance()

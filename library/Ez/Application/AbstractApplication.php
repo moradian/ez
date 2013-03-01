@@ -24,14 +24,25 @@ namespace Ez\Application;
 
 abstract class AbstractApplication
 {
-	protected
-		// A CUSTOM TEMPLATE CAN BE SET BY PROVIDING A "ct"
-		// GET PARAMETER ENCRYPTED BY M47::M4
-		$customTemplate,
+	/**
+	 * @var \Ez\Controller\AbstractController
+	 */
+	protected $controller;
 
-		// A DOCTRINE ENTITY MANAGER OBJECT TO BE
-		// PASSED TO THE APPROPRIATE CONTROLLER
-		$doctrineEntityManager;
+	/**
+	 * @var string
+	 */
+	protected $customTemplate;
+
+	/**
+	 * @var \Doctrine\ORM\EntityManager
+	 */
+	protected $doctrineEntityManager;
+
+	/**
+	 * @var array
+	 */
+	protected $ezConf;
 
 	/**
 	 * Is a collection is registered plugins in the ini config file of the project

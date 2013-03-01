@@ -32,6 +32,7 @@ class Application extends Application\AbstractApplication
 		$this->customTemplate = null;
 		$this->customView     = null;
 
+		$this->loadConfigs();
 		$this->setUpDoctrine();
 
 		\Ez\Plugin\Engine::getInstance()
@@ -50,13 +51,14 @@ class Application extends Application\AbstractApplication
 
 		$this->run();
 		\Ez\Plugin\Engine::getInstance()->runPostDispatch();
+		$this->controller->postRun();
 	}
 
 	private function run()
 	{
 		// INSTANTIATE THE APPROPRIATE CONTROLLER OBJ
 		$controllerClassName = Request::getInstance()->getControllerClassName();
-		$controller          = new $controllerClassName;
+		$this->controller    = new $controllerClassName();
 
 		$viewContentFile =
 			strtolower(
@@ -71,43 +73,61 @@ class Application extends Application\AbstractApplication
 		///////////////////////////////
 
 		// INSTANTIATE THE APPROPRIATE VIEW OBJ
-		$controllerView = $controller->getView();
+		$controllerView = $this->controller->getView();
 
 		if( !empty( $controllerView ) )
 		{
-			$view = $controller->getView();
+			$view = $this->controller->getView();
 		}
 		else
 		{
+			$templateConf = $this->ezConf[ "template" ];
+
 			$view = View::getInstance();
 			$view->setContentFile( $viewContentFile );
-			$view->setTemplateFile( "MainTemplate" );
+			$view->setTemplateFile( $templateConf[ "default" ] );
 		}
 
 		// SET THE CONTROLLER'S NEW VIEW
 		$view->setRequest( Request::getInstance() );
 		$view->setEncoding();
-		$controller->setView( $view );
+		$this->controller->setView( $view );
 
 		///////////////////////////////////////////////
 		// PASS THE REQUEST OBJECT TO THE CONTROLLER //
 		///////////////////////////////////////////////
-		$controller->setRequest( Request::getInstance() );
+		$this->controller->setRequest( Request::getInstance() );
 
 		////////////////////////
 		// RUN THE CONTROLLER //
 		////////////////////////
-		$controller->run();
+		$this->controller->run();
 
 		/////////////
 		// DISPLAY //
 		/////////////
 		$view->display();
+	}
 
-		/////////////////////////////////////
-		// RUN CONTROLLER'S PostRun METHOD //
-		/////////////////////////////////////
-		$controller->postRun();
+	private function loadConfigs()
+	{
+		$conf = new \Zend\Config\Reader\Ini();
+
+		try
+		{
+			$this->ezConf = $conf->fromFile( PATH_TO_CONFIGS . "ez.ini" );
+		}
+		catch( \Exception $XCP )
+		{
+			exit( $XCP->getMessage() );
+		}
+
+		$timezone = $this->ezConf[ "timezone" ];
+
+		if( !is_null( $timezone ) && isset( $timezone[ "default" ] ) )
+		{
+			date_default_timezone_set( $timezone[ "default" ] );
+		}
 	}
 
 	/**
@@ -118,11 +138,11 @@ class Application extends Application\AbstractApplication
 	 */
 	private function setUpDoctrine()
 	{
-		$dbConf = @parse_ini_file( ROOT_PATH . "/configs/db.ini" );
+		$dbConf = $this->ezConf[ "db" ];
 
-		if( $dbConf === false )
+		if( is_null( $dbConf ) )
 		{
-			exit( "DB config file cannot be accessed!" );
+			exit( "DB config section is missing in the \"ez.ini\" file" );
 		}
 
 		$cache  = new \Doctrine\Common\Cache\ArrayCache();
@@ -134,11 +154,11 @@ class Application extends Application\AbstractApplication
 		$config->setProxyNamespace( "Proxy" );
 		$config->setAutoGenerateProxyClasses( true );
 
-		$connOptions = array( "driver"      => $dbConf[ "driver" ],
-							  "dbname"      => $dbConf[ "dbname" ],
-							  "user"        => $dbConf[ "username" ],
-							  "password"    => $dbConf[ "password" ],
-							  "host"        => $dbConf[ "host" ]
+		$connOptions = array( "driver"   => $dbConf[ "driver" ],
+		                      "dbname"   => $dbConf[ "dbname" ],
+		                      "user"     => $dbConf[ "username" ],
+		                      "password" => $dbConf[ "password" ],
+		                      "host"     => $dbConf[ "host" ]
 		);
 
 		$entityManager = \Doctrine\ORM\EntityManager::create( $connOptions, $config );

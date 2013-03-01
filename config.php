@@ -37,6 +37,7 @@ define( "PATH_TO_VIEWS"			, ROOT_PATH . "/views/" );
 define( "PATH_TO_CONTROLLERS"	, ROOT_PATH . "/controllers/" );
 define( "PATH_TO_CACHE"			, ROOT_PATH . "/cache/" );
 define( "PATH_TO_TRANSLATIONS"	, ROOT_PATH . "/translations/" );
+define( "PATH_TO_CONFIGS"	    , ROOT_PATH . "/configs/" );
 define( "PATH_TO_LIBRARY"		, ROOT_PATH . "/library/" );
 define( "PATH_TO_LOGS"			, ROOT_PATH . "/logs/" );
 
